@@ -1,0 +1,41 @@
+[package]
+name = "boss-timer"
+version = "0.1.0"
+description = "A minimal pixel-art desktop focus timer"
+edition = "2021"
+rust-version = "1.80"
+
+[lib]
+name = "boss_timer_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+serde_json = "1"
+
+[dependencies]
+tauri = { version = "2", features = ["image-png", "tray-icon"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri-plugin-single-instance = "2"
+tauri-plugin-window-state = "2"
+tauri-plugin-opener = "2"
+rusqlite = { version = "0.40.2", features = ["bundled"] }
+keyring = { version = "3.6.3", features = ["apple-native", "sync-secret-service", "crypto-rust"] }
+tokio = { version = "1.53.3", features = ["macros", "time", "net", "io-util", "rt"] }
+# Alarm playback only: no decoders needed, the sounds are synthesized.
+rodio = { version = "0.21.1", default-features = false, features = ["playback"] }
+chrono = "0.4.45"
+sha2 = "0.10.9"
+base64 = "0.23.1"
+rand = "0.9.5"
+url = "2.5.8"
+log = "0.4.34"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

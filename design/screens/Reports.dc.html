@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reports</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Pixelify+Sans:wght@400;500;700&amp;family=VT323&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit}
+.pxbox{box-shadow:0 -4px 0 0 var(--line),0 4px 0 0 var(--line),-4px 0 0 0 var(--line),4px 0 0 0 var(--line),8px 8px 0 0 var(--shadow)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border:0;cursor:pointer;text-decoration:none;font:500 15px/1 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--fg);background:var(--panel2);box-shadow:0 -2px 0 0 var(--line),0 2px 0 0 var(--line),-2px 0 0 0 var(--line),2px 0 0 0 var(--line),inset 0 -4px 0 0 rgba(0,0,0,.22)}
+.nav{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0 12px;border:0;background:transparent;color:var(--dim);cursor:pointer;text-decoration:none;font:500 15px/1 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.05em;text-align:left}
+.nav:hover{color:var(--fg);background:var(--panel2)}
+.nav[aria-current="page"]{color:var(--fg);background:var(--panel2);box-shadow:inset 0 0 0 2px var(--accent)}
+.lbl{font:500 14px/1.2 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.cell{width:14px;height:14px;border:0;padding:0;cursor:pointer;display:block}
+.cell:hover{outline:2px solid var(--fg);outline-offset:1px}
+:focus-visible{outline:2px dashed var(--accent);outline-offset:3px}
+</style>
+</helmet>
+<div style="--bg: {{t.bg}}; --panel: {{t.panel}}; --panel2: {{t.panel2}}; --line: {{t.line}}; --fg: {{t.fg}}; --dim: {{t.dim}}; --accent: {{t.accent}}; --onAccent: {{t.onAccent}}; --shadow: {{t.shadow}}; --warn: {{xtra.warn}}; --danger: {{xtra.danger}}; --ink: {{xtra.ink}}; --body: {{font}}; min-height: 100vh; background-color: var(--bg); background-image: conic-gradient(color-mix(in srgb, var(--fg) 4%, transparent) 25%, transparent 0 50%, color-mix(in srgb, var(--fg) 4%, transparent) 0 75%, transparent 0); background-size: 4px 4px; color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.45; padding: 28px 24px 40px">
+
+<div style="width: 100%; max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; align-items: center; gap: 14px">
+<a class="btn" href="Main.dc.html" aria-label="Back to today" style="width: 44px; padding: 0"><svg width="14" height="14" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M4 1h1v6H4z M3 2h1v4H3z M2 3h1v2H2z"></path></svg></a>
+<svg width="32" height="32" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-label="Boss Timer" style="flex: none"><path style="fill: color-mix(in srgb, var(--fg) 14%, var(--panel2))" d="{{m.glass}}"></path><path style="fill: var(--accent)" d="{{m.sand}}"></path><path style="fill: var(--fg)" d="{{m.frame}}"></path><path style="fill: var(--warn)" d="{{m.crown}}"></path><path style="fill: var(--danger)" d="{{m.gem}}"></path><path style="fill: var(--danger)" d="{{m.eye}}"></path><path style="fill: var(--ink)" d="{{m.dark}}"></path></svg>
+<h1 style="margin: 0; font: 700 28px/1.1 'Pixelify Sans', ui-monospace, monospace; letter-spacing: .02em">Settings</h1>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px">
+<nav class="pxbox" aria-label="Settings sections" style="flex: 1 1 200px; max-width: 100%; background: var(--panel); padding: 10px; display: flex; flex-direction: column; gap: 4px">
+<a class="nav" href="Settings.dc.html"><svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 1h2v3H3z M2 2h1v1H2z M5 2h1v1H5z M1 5h6v2H1z"></path></svg>Accounts</a>
+<a class="nav" href="Settings.dc.html"><svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 0h2v1H3z M2 1h4v1H2z M1 2h6v4H1z M0 6h8v1H0z M3 7h2v1H3z"></path></svg>Timer &amp; alarm</a>
+<a class="nav" href="Settings.dc.html"><svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 3h2v2H0z M2 2h1v4H2z M3 1h1v6H3z M5 2h1v1H5z M5 5h1v1H5z M6 3h1v2H6z"></path></svg>Sound</a>
+<a class="nav" href="Settings.dc.html"><svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h3v3H0z M5 0h3v3H5z M0 5h3v3H0z M5 5h3v3H5z"></path></svg>Appearance</a>
+<a class="nav" href="Reports.dc.html" aria-current="page"><svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M1 4h1v3H1z M3 2h1v5H3z M5 3h1v4H5z M0 7h8v1H0z"></path></svg>Reports</a>
+</nav>
+
+<section class="pxbox" style="flex: 999 1 600px; min-width: 0; background: var(--panel); padding: 24px; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px">
+<h2 class="lbl" style="margin: 0">Reports</h2>
+<span style="font-size: 13px; color: var(--dim)">All time · focused hours come from your on-task answer after each timer</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 16px">
+<sc-for list="{{stats}}" as="st" hint-placeholder-count="4">
+<div style="background: var(--bg); padding: 16px; display: flex; flex-direction: column; gap: 6px; box-shadow: inset 0 0 0 2px var(--panel2)">
+<span class="lbl" style="font-size: 13px">{{st.label}}</span>
+<span style="font: 700 30px/1 'Pixelify Sans', ui-monospace, monospace">{{st.value}}</span>
+<span style="font-size: 12.5px; color: var(--dim)">{{st.sub}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px">
+<h3 style="margin: 0; font: 700 17px/1.2 'Pixelify Sans', ui-monospace, monospace">2026</h3>
+<span style="font-size: 13px; color: var(--dim)">{{activeDays}} days with focus time</span>
+</div>
+<div style="overflow-x: auto; padding: 4px 4px 8px">
+<div style="display: grid; grid-template-columns: 32px auto; column-gap: 8px; row-gap: 6px; width: max-content">
+<span></span>
+<div style="display: grid; grid-template-columns: repeat(53, 14px); column-gap: 3px; height: 16px">
+<sc-for list="{{months}}" as="m" hint-placeholder-count="12">
+<span style="grid-row: 1; grid-column: {{m.col}} / span 4; font-size: 12px; line-height: 16px; color: var(--dim)">{{m.label}}</span>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-rows: repeat(7, 14px); row-gap: 3px; font-size: 11.5px; line-height: 14px; color: var(--dim)">
+<span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span>
+</div>
+<div role="grid" aria-label="Focused hours per day, 2026" style="display: grid; grid-template-rows: repeat(7, 14px); grid-auto-flow: column; grid-auto-columns: 14px; gap: 3px">
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="371">
+<button class="cell" type="button" aria-label="{{c.aria}}" aria-pressed="{{c.sel}}" onClick="{{c.pick}}" style="background: {{c.bg}}; box-shadow: {{c.sh}}"></button>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; font-size: 12.5px; color: var(--dim)">
+<span>Hours focused</span>
+<sc-for list="{{legend}}" as="l" hint-placeholder-count="5">
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; background: {{l.bg}}"></span>{{l.label}}</span>
+</sc-for>
+</div>
+</div>
+
+<div style="background: var(--bg); padding: 18px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; box-shadow: inset 0 0 0 2px var(--panel2)">
+<span style="font: 700 20px/1.2 'Pixelify Sans', ui-monospace, monospace; min-width: 150px">{{day.date}}</span>
+<sc-if value="{{day.has}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-wrap: wrap; gap: 12px 28px">
+<span><span style="font-weight: 700">{{day.focused}}</span> <span style="color: var(--dim)">focused</span></span>
+<span><span style="font-weight: 700">{{day.timed}}</span> <span style="color: var(--dim)">timed</span></span>
+<span><span style="font-weight: 700">{{day.rate}}</span> <span style="color: var(--dim)">on task</span></span>
+<span><span style="font-weight: 700">{{day.sessions}}</span> <span style="color: var(--dim)">sessions</span></span>
+</div>
+</sc-if>
+<sc-if value="{{day.none}}" hint-placeholder-val="{{false}}">
+<span style="color: var(--dim)">{{day.empty}}</span>
+</sc-if>
+</div>
+
+</section>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["everforest","catppuccin-mocha","catppuccin-latte","nord","tokyo-night","gruvbox","rose-pine","dracula"],"default":"tokyo-night","section":"Look"},"bodyFont":{"editor":"enum","options":["JetBrains Mono","Pixelify Sans"],"default":"JetBrains Mono","section":"Look"},"$preview":{"width":1240,"height":820}}'>
+const THEMES = {
+  'everforest': {bg:'#272e33', panel:'#2d353b', panel2:'#3d484d', line:'#56635f', fg:'#d3c6aa', dim:'#9da9a0', accent:'#a7c080', onAccent:'#232a2e', shadow:'#1e2326'},
+  'catppuccin-mocha': {bg:'#181825', panel:'#1e1e2e', panel2:'#313244', line:'#585b70', fg:'#cdd6f4', dim:'#a6adc8', accent:'#cba6f7', onAccent:'#1e1e2e', shadow:'#11111b'},
+  'catppuccin-latte': {bg:'#e6e9ef', panel:'#eff1f5', panel2:'#dce0e8', line:'#9ca0b0', fg:'#4c4f69', dim:'#5c5f77', accent:'#8839ef', onAccent:'#eff1f5', shadow:'#bcc0cc'},
+  'nord': {bg:'#2e3440', panel:'#3b4252', panel2:'#434c5e', line:'#616e88', fg:'#eceff4', dim:'#c2c9d6', accent:'#88c0d0', onAccent:'#2e3440', shadow:'#242933'},
+  'tokyo-night': {bg:'#16161e', panel:'#1a1b26', panel2:'#292e42', line:'#414868', fg:'#c0caf5', dim:'#a9b1d6', accent:'#7aa2f7', onAccent:'#16161e', shadow:'#0c0c10'},
+  'gruvbox': {bg:'#1d2021', panel:'#282828', panel2:'#3c3836', line:'#665c54', fg:'#ebdbb2', dim:'#bdae93', accent:'#b8bb26', onAccent:'#1d2021', shadow:'#121414'},
+  'rose-pine': {bg:'#191724', panel:'#1f1d2e', panel2:'#26233a', line:'#524f67', fg:'#e0def4', dim:'#908caa', accent:'#c4a7e7', onAccent:'#191724', shadow:'#100e18'},
+  'dracula': {bg:'#21222c', panel:'#282a36', panel2:'#343746', line:'#6272a4', fg:'#f8f8f2', dim:'#b6bcd6', accent:'#bd93f9', onAccent:'#21222c', shadow:'#191a21'}
+};
+const FONTS = {
+  'JetBrains Mono': "'JetBrains Mono', ui-monospace, Menlo, monospace",
+  'Pixelify Sans': "'Pixelify Sans', ui-monospace, monospace"
+};
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const GRID_START = new Date(2025, 11, 28);
+const FIRST_USE = new Date(2026, 1, 2);
+const TODAY = new Date(2026, 9, 27);
+const DAYMS = 86400000;
+function idxOf(d){ return Math.round((d - GRID_START) / DAYMS); }
+function rng(seed){ let x = seed >>> 0; return () => { x = (Math.imul(x, 1664525) + 1013904223) >>> 0; return x / 4294967296; }; }
+function fmtH(h){ const m = Math.round(h * 60); return Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm'; }
+function level(h){ if (!h) return 0; if (h < 1) return 1; if (h < 2) return 2; if (h < 3.5) return 3; return 4; }
+const DAYS = (() => {
+  const r = rng(42);
+  const out = [];
+  for (let i = 0; i < 371; i++) {
+    const d = new Date(2025, 11, 28 + i);
+    const future = d > TODAY;
+    const before = d < FIRST_USE;
+    const wd = d.getDay();
+    const weekend = wd === 0 || wd === 6;
+    const a = r(), b = r(), c = r();
+    let focused = 0, timed = 0, sessions = 0;
+    if (!future && !before && a < (weekend ? 0.3 : 0.8)) {
+      focused = weekend ? 0.3 + b * 1.8 : 0.4 + Math.pow(b, 1.3) * 4.6;
+      const rate = 0.6 + c * 0.38;
+      timed = focused / rate;
+      sessions = Math.max(1, Math.round(timed / 0.5));
+    }
+    if (d.getTime() === TODAY.getTime()) { focused = 3.3; timed = 4.03; sessions = 5; }
+    out.push({ d, future, before, focused, timed, sessions });
+  }
+  return out;
+})();
+const STATS = (() => {
+  let f = 0, tm = 0, longest = 0, run = 0, active = 0;
+  DAYS.forEach((x) => {
+    if (x.future) return;
+    f += x.focused; tm += x.timed;
+    if (x.focused > 0) { run += 1; active += 1; longest = Math.max(longest, run); } else run = 0;
+  });
+  let cur = 0;
+  for (let i = idxOf(TODAY); i >= 0 && DAYS[i].focused > 0; i--) cur++;
+  return { f, tm, longest, cur, active };
+})();
+const XTRA = {
+  'everforest': {warn:'#dbbc7f', danger:'#e67e80', ink:'#1e2326'},
+  'catppuccin-mocha': {warn:'#fab387', danger:'#f38ba8', ink:'#11111b'},
+  'catppuccin-latte': {warn:'#df8e1d', danger:'#d20f39', ink:'#232634'},
+  'nord': {warn:'#ebcb8b', danger:'#bf616a', ink:'#242933'},
+  'tokyo-night': {warn:'#e0af68', danger:'#f7768e', ink:'#0c0c10'},
+  'gruvbox': {warn:'#fabd2f', danger:'#fb4934', ink:'#121414'},
+  'rose-pine': {warn:'#f6c177', danger:'#eb6f92', ink:'#100e18'},
+  'dracula': {warn:'#ffb86c', danger:'#ff5555', ink:'#191a21'}
+};
+const MASCOT = ['....K..KK..K....','....KKKGGKKK....','....KKKKKKKK....','..FFFFFFFFFFFF..','..F.gdggggdg.F..','..F.ggdggdgg.F..','..F..geggeg..F..','..F...gddg...F..','..F....gg....F..','..F...gggg...F..','..F..gggggg..F..','..F.gggggggg.F..','..F.gggggggg.F..','..FFFFFFFFFFFF..','...FF......FF...','................'];
+function mascot(f, mood){
+  const rows = MASCOT.map((r) => r.split(''));
+  if (mood === 'alarm') { rows[6] = '..F..eeggee..F..'.split(''); rows[7] = '..F...dddd...F..'.split(''); }
+  const cells = (y) => { const xs = []; rows[y].forEach((ch, x) => { if (ch === 'g') xs.push(x); }); return xs.sort((a, b) => Math.abs(a - 7.5) - Math.abs(b - 7.5)); };
+  const fill = (ys, n) => { ys.forEach((y) => cells(y).forEach((x) => { if (n > 0) { rows[y][x] = 's'; n--; } })); };
+  const up = [7, 6, 5, 4], low = [12, 11, 10, 9];
+  const cap = (ys) => ys.reduce((a, y) => a + cells(y).length, 0);
+  const upCap = cap(up), lowCap = cap(low);
+  fill(up, Math.round(f * upCap));
+  fill(low, Math.round((1 - f) * lowCap));
+  if (mood === 'run' && f > 0 && f < 1) rows[8][7] = 's';
+  const KEY = { F: 'frame', g: 'glass', s: 'sand', K: 'crown', G: 'gem', e: 'eye', d: 'dark' };
+  const out = { frame: '', glass: '', sand: '', crown: '', gem: '', eye: '', dark: '' };
+  rows.forEach((r, y) => r.forEach((ch, x) => { const k = KEY[ch]; if (k) out[k] += 'M' + x + ' ' + y + 'h1v1h-1z'; }));
+  return out;
+}
+class Component extends DCLogic {
+  state = { sel: idxOf(TODAY) };
+  renderVals(){
+    const t = THEMES[this.props.theme] || THEMES['tokyo-night'];
+    const mix = (p) => 'color-mix(in srgb, ' + t.accent + ' ' + p + '%, ' + t.panel2 + ')';
+    const LV = [t.panel2, mix(30), mix(55), mix(78), t.accent];
+    const sel = this.state.sel;
+    const cells = DAYS.map((x, i) => {
+      const lv = level(x.focused);
+      const label = MONTHS[x.d.getMonth()] + ' ' + x.d.getDate();
+      return {
+        bg: x.future ? 'transparent' : LV[lv],
+        sh: i === sel ? ('0 0 0 2px ' + t.fg) : (x.future ? ('inset 0 0 0 1px ' + t.panel2) : 'none'),
+        sel: i === sel,
+        aria: label + ': ' + (x.future ? 'upcoming' : (x.focused ? fmtH(x.focused) + ' focused' : 'no focus logged')),
+        pick: () => this.setState({ sel: i })
+      };
+    });
+    const months = MONTHS.map((label, m) => ({ label, col: Math.floor(idxOf(new Date(2026, m, 1)) / 7) + 1 }));
+    const x = DAYS[sel];
+    const day = {
+      date: DOW[x.d.getDay()] + ', ' + MONTHS[x.d.getMonth()] + ' ' + x.d.getDate(),
+      has: x.focused > 0,
+      none: !(x.focused > 0),
+      empty: x.future ? 'Upcoming' : 'No focus logged',
+      focused: fmtH(x.focused),
+      timed: fmtH(x.timed),
+      rate: x.timed ? Math.round(x.focused / x.timed * 100) + '%' : '—',
+      sessions: x.sessions
+    };
+    const stats = [
+      { label: 'Focused', value: Math.round(STATS.f) + 'h', sub: 'of ' + Math.round(STATS.tm) + 'h timed' },
+      { label: 'On task', value: Math.round(STATS.f / STATS.tm * 100) + '%', sub: 'average of your answers' },
+      { label: 'Current streak', value: STATS.cur + ' days', sub: 'days in a row with focus' },
+      { label: 'Longest streak', value: STATS.longest + ' days', sub: 'best run so far' }
+    ];
+    const legend = [
+      { label: '0', bg: LV[0] }, { label: 'under 1h', bg: LV[1] }, { label: '1–2h', bg: LV[2] }, { label: '2–3.5h', bg: LV[3] }, { label: '3.5h+', bg: LV[4] }
+    ];
+    return { t, font: FONTS[this.props.bodyFont] || FONTS['JetBrains Mono'], cells, months, day, stats, legend, activeDays: STATS.active,
+      m: mascot(0.6, 'idle'), xtra: XTRA[this.props.theme] || XTRA['tokyo-night'] };
+  }
+}
+</script>
+</body>
+</html>

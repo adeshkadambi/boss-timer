@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Boss Timer",
+  "version": "0.1.0",
+  "identifier": "dev.bosstimer.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Boss Timer",
+        "url": "index.html",
+        "width": 960,
+        "height": 640,
+        "minWidth": 960,
+        "minHeight": 520,
+        "center": true,
+        "backgroundColor": "#16161e",
+        "maxWidth": 960,
+        "maximizable": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "deb",
+      "appimage",
+      "rpm",
+      "app",
+      "dmg"
+    ],
+    "category": "Productivity",
+    "shortDescription": "A pixel-art focus timer",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "../licenses/fonts/": "licenses/fonts/"
+    }
+  }
+}

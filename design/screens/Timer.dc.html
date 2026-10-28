@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Boss Timer — floating timer</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Pixelify+Sans:wght@400;500;700&amp;family=VT323&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit}
+.pxbox{box-shadow:0 -4px 0 0 var(--line),0 4px 0 0 var(--line),-4px 0 0 0 var(--line),4px 0 0 0 var(--line),8px 8px 0 0 var(--shadow)}
+.pxsm{box-shadow:0 -2px 0 0 var(--line),0 2px 0 0 var(--line),-2px 0 0 0 var(--line),2px 0 0 0 var(--line)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border:0;cursor:pointer;text-decoration:none;font:500 15px/1 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--fg);background:var(--panel2);box-shadow:0 -2px 0 0 var(--line),0 2px 0 0 var(--line),-2px 0 0 0 var(--line),2px 0 0 0 var(--line),inset 0 -4px 0 0 rgba(0,0,0,.22)}
+.btn:hover{background:color-mix(in srgb,var(--panel2) 82%,var(--fg))}
+.btn:active{transform:translateY(2px)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--onAccent);box-shadow:0 -2px 0 0 var(--accent),0 2px 0 0 var(--accent),-2px 0 0 0 var(--accent),2px 0 0 0 var(--accent),inset 0 -4px 0 0 rgba(0,0,0,.25)}
+.ibtn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--dim);cursor:pointer;flex:none}
+.ibtn:hover{background:var(--panel2);color:var(--fg)}
+.ibtn[aria-pressed="true"]{color:var(--accent)}
+.ghost{background:transparent;border:0;color:inherit;font:inherit;cursor:pointer;padding:0}
+:focus-visible{outline:2px dashed var(--accent);outline-offset:3px}
+@keyframes pxshake{0%{transform:translate(0,0)}15%{transform:translate(-8px,0)}30%{transform:translate(8px,-4px)}45%{transform:translate(-8px,4px)}60%{transform:translate(4px,0)}75%{transform:translate(-4px,0)}100%{transform:translate(0,0)}}
+@keyframes pxring{0%{transform:rotate(0)}25%{transform:rotate(-18deg)}50%{transform:rotate(0)}75%{transform:rotate(18deg)}100%{transform:rotate(0)}}
+@keyframes pxblink{0%{opacity:1}50%{opacity:0}}
+.shake{animation:pxshake .42s steps(1,end) 6}
+.ring{animation:pxring .3s steps(1,end) 12;transform-origin:50% 0}
+.blink{animation:pxblink 1s steps(1,end) infinite}
+@media (prefers-reduced-motion: reduce){.shake,.ring,.blink{animation:none}}
+</style>
+</helmet>
+<div style="--bg: {{t.bg}}; --panel: {{t.panel}}; --panel2: {{t.panel2}}; --line: {{t.line}}; --fg: {{t.fg}}; --dim: {{t.dim}}; --accent: {{t.accent}}; --accent2: {{t.accent2}}; --warn: {{t.warn}}; --danger: {{t.danger}}; --onAccent: {{t.onAccent}}; --shadow: {{t.shadow}}; --ink: {{ink}}; --body: {{font}}; width: 480px; height: 420px; background-color: var(--bg); background-image: conic-gradient(color-mix(in srgb, var(--fg) 4%, transparent) 25%, transparent 0 50%, color-mix(in srgb, var(--fg) 4%, transparent) 0 75%, transparent 0); background-size: 4px 4px; color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.4; padding: 40px; display: flex; align-items: flex-start; justify-content: center">
+
+<div class="{{shakeClass}}" style="width: 400px">
+<section class="pxbox" aria-label="Focus timer" style="--line: {{edge}}; background: var(--panel); padding: 8px 12px 14px; display: flex; flex-direction: column; gap: 10px">
+
+<div style="display: flex; align-items: center; gap: 4px">
+<svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" style="color: var(--dim); flex: none; cursor: grab"><path d="M2 1h1v1H2z M5 1h1v1H5z M2 3h1v1H2z M5 3h1v1H5z M2 5h1v1H2z M5 5h1v1H5z"></path></svg>
+<svg width="32" height="32" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" style="flex: none; margin-left: 2px"><path style="fill: color-mix(in srgb, var(--fg) 14%, var(--panel2))" d="{{m.glass}}"></path><path style="fill: var(--accent)" d="{{m.sand}}"></path><path style="fill: var(--fg)" d="{{m.frame}}"></path><path style="fill: var(--warn)" d="{{m.crown}}"></path><path style="fill: var(--danger)" d="{{m.gem}}"></path><path style="fill: var(--danger)" d="{{m.eye}}"></path><path style="fill: var(--ink)" d="{{m.dark}}"></path></svg>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; padding-left: 6px">
+<span style="font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Write first draft of Q4 planning doc</span>
+<span style="font-size: 12px; color: var(--dim)">{{status}}</span>
+</div>
+<sc-if value="{{showBell}}" hint-placeholder-val="{{false}}">
+<span class="{{bellClass}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--danger)"><svg width="18" height="18" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" role="img" aria-label="Alarm ringing"><path d="M3 0h2v1H3z M2 1h4v1H2z M1 2h6v4H1z M0 6h8v1H0z M3 7h2v1H3z"></path></svg></span>
+</sc-if>
+<button class="ibtn" type="button" aria-label="Lofi music" aria-pressed="{{music}}" onClick="{{toggleMusic}}"><svg width="18" height="18" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 1h4v1H3z M3 2h1v4H3z M6 2h1v3H6z M1 5h3v2H1z M4 4h3v2H4z"></path></svg></button>
+<sc-if value="{{isRun}}" hint-placeholder-val="{{true}}">
+<button class="ibtn" type="button" aria-label="{{pauseLabel}}" onClick="{{togglePause}}">
+<sc-if value="{{running}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M1 1h2v6H1z M5 1h2v6H5z"></path></svg></sc-if>
+<sc-if value="{{paused}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M2 1h2v6H2z M4 2h1v4H4z M5 3h1v2H5z"></path></svg></sc-if>
+</button>
+<button class="ibtn" type="button" aria-label="Stop timer" onClick="{{stop}}"><svg width="18" height="18" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M1 1h6v6H1z"></path></svg></button>
+</sc-if>
+</div>
+
+<div class="pxsm" role="timer" aria-label="{{ariaTime}}" style="position: relative; height: 52px; background: repeating-linear-gradient(90deg, var(--panel2) 0 14px, var(--panel) 14px 16px)">
+<div class="{{blinkClass}}" aria-hidden="true" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 400 44px/1 'VT323', ui-monospace, monospace; letter-spacing: .06em; color: var(--fg)">{{clock}}</div>
+<div aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: {{fillW}}px; overflow: hidden; background: repeating-linear-gradient(90deg, {{fill}} 0 14px, color-mix(in srgb, {{fill}} 70%, var(--panel)) 14px 16px)">
+<div style="width: 376px; height: 52px; display: flex; align-items: center; justify-content: center; font: 400 44px/1 'VT323', ui-monospace, monospace; letter-spacing: .06em; color: {{onFill}}">{{clock}}</div>
+</div>
+</div>
+
+<sc-if value="{{isReport}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 4px">
+<span id="q" style="font: 600 16px/1.25 'Pixelify Sans', ui-monospace, monospace">{{reportTitle}} How much of it was on task?</span>
+<div role="radiogroup" aria-labelledby="q" style="display: flex; gap: 6px">
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="5">
+<button class="ghost" type="button" role="radio" aria-checked="{{c.on}}" aria-label="{{c.label}}" onClick="{{c.pick}}" style="flex: 1; height: 36px; background: {{c.bg}}; box-shadow: inset 0 0 0 2px {{c.edge}}"></button>
+</sc-for>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 12.5px; color: var(--dim)"><span>Barely</span><span style="color: var(--fg); font-weight: 500">{{ratingLabel}}</span><span>All of it</span></div>
+<div style="display: flex; gap: 10px">
+<button class="btn" type="button" onClick="{{extend}}">+5 min</button>
+<button class="btn primary" type="button" onClick="{{log}}" disabled="{{noRating}}" style="flex: 1">Log it</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isLogged}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 4px">
+<span style="font: 600 16px/1.25 'Pixelify Sans', ui-monospace, monospace">Logged {{loggedMin}} min focused</span>
+<span style="font-size: 13px; color: var(--dim)">of {{spentMin}} min timed · added to Reports</span>
+<div style="display: flex; gap: 10px">
+<button class="btn" type="button" onClick="{{again}}">Again</button>
+<a class="btn primary" href="Main.dc.html" style="flex: 1">Back to today</a>
+</div>
+</div>
+</sc-if>
+
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["everforest","catppuccin-mocha","catppuccin-latte","nord","tokyo-night","gruvbox","rose-pine","dracula"],"default":"tokyo-night","section":"Look"},"bodyFont":{"editor":"enum","options":["JetBrains Mono","Pixelify Sans"],"default":"JetBrains Mono","section":"Look"},"startMinutes":{"editor":"range","min":1,"max":90,"step":1,"unit":"min","default":25,"section":"Timer"},"demoSpeed":{"editor":"enum","options":["real time","60x demo"],"default":"real time","section":"Timer"},"alarm":{"editor":"enum","options":["ring + shake","shake","ring"],"default":"ring + shake","section":"Timer"},"$preview":{"width":480,"height":420}}'>
+const THEMES = {
+  'everforest': {bg:'#272e33', panel:'#2d353b', panel2:'#3d484d', line:'#56635f', fg:'#d3c6aa', dim:'#9da9a0', accent:'#a7c080', accent2:'#7fbbb3', warn:'#dbbc7f', danger:'#e67e80', onAccent:'#232a2e', shadow:'#1e2326'},
+  'catppuccin-mocha': {bg:'#181825', panel:'#1e1e2e', panel2:'#313244', line:'#585b70', fg:'#cdd6f4', dim:'#a6adc8', accent:'#cba6f7', accent2:'#89b4fa', warn:'#fab387', danger:'#f38ba8', onAccent:'#1e1e2e', shadow:'#11111b'},
+  'catppuccin-latte': {bg:'#e6e9ef', panel:'#eff1f5', panel2:'#dce0e8', line:'#9ca0b0', fg:'#4c4f69', dim:'#5c5f77', accent:'#8839ef', accent2:'#1e66f5', warn:'#df8e1d', danger:'#d20f39', onAccent:'#eff1f5', onWarn:'#232634', shadow:'#bcc0cc'},
+  'nord': {bg:'#2e3440', panel:'#3b4252', panel2:'#434c5e', line:'#616e88', fg:'#eceff4', dim:'#c2c9d6', accent:'#88c0d0', accent2:'#81a1c1', warn:'#ebcb8b', danger:'#bf616a', onAccent:'#2e3440', shadow:'#242933'},
+  'tokyo-night': {bg:'#16161e', panel:'#1a1b26', panel2:'#292e42', line:'#414868', fg:'#c0caf5', dim:'#a9b1d6', accent:'#7aa2f7', accent2:'#bb9af7', warn:'#e0af68', danger:'#f7768e', onAccent:'#16161e', shadow:'#0c0c10'},
+  'gruvbox': {bg:'#1d2021', panel:'#282828', panel2:'#3c3836', line:'#665c54', fg:'#ebdbb2', dim:'#bdae93', accent:'#b8bb26', accent2:'#83a598', warn:'#fabd2f', danger:'#fb4934', onAccent:'#1d2021', shadow:'#121414'},
+  'rose-pine': {bg:'#191724', panel:'#1f1d2e', panel2:'#26233a', line:'#524f67', fg:'#e0def4', dim:'#908caa', accent:'#c4a7e7', accent2:'#9ccfd8', warn:'#f6c177', danger:'#eb6f92', onAccent:'#191724', shadow:'#100e18'},
+  'dracula': {bg:'#21222c', panel:'#282a36', panel2:'#343746', line:'#6272a4', fg:'#f8f8f2', dim:'#b6bcd6', accent:'#bd93f9', accent2:'#8be9fd', warn:'#ffb86c', danger:'#ff5555', onAccent:'#21222c', shadow:'#191a21'}
+};
+const FONTS = {
+  'JetBrains Mono': "'JetBrains Mono', ui-monospace, Menlo, monospace",
+  'Pixelify Sans': "'Pixelify Sans', ui-monospace, monospace"
+};
+const SPEEDS = { 'real time': 1, '60x demo': 60 };
+const BAR = 376;
+const MASCOT = ['....K..KK..K....','....KKKGGKKK....','....KKKKKKKK....','..FFFFFFFFFFFF..','..F.gdggggdg.F..','..F.ggdggdgg.F..','..F..geggeg..F..','..F...gddg...F..','..F....gg....F..','..F...gggg...F..','..F..gggggg..F..','..F.gggggggg.F..','..F.gggggggg.F..','..FFFFFFFFFFFF..','...FF......FF...','................'];
+function mascot(f, mood){
+  const rows = MASCOT.map((r) => r.split(''));
+  if (mood === 'alarm') { rows[6] = '..F..eeggee..F..'.split(''); rows[7] = '..F...dddd...F..'.split(''); }
+  const cells = (y) => { const xs = []; rows[y].forEach((ch, x) => { if (ch === 'g') xs.push(x); }); return xs.sort((a, b) => Math.abs(a - 7.5) - Math.abs(b - 7.5)); };
+  const fill = (ys, n) => { ys.forEach((y) => cells(y).forEach((x) => { if (n > 0) { rows[y][x] = 's'; n--; } })); };
+  const up = [7, 6, 5, 4], low = [12, 11, 10, 9];
+  const cap = (ys) => ys.reduce((a, y) => a + cells(y).length, 0);
+  const upCap = cap(up), lowCap = cap(low);
+  fill(up, Math.round(f * upCap));
+  fill(low, Math.round((1 - f) * lowCap));
+  if (mood === 'run' && f > 0 && f < 1) rows[8][7] = 's';
+  const KEY = { F: 'frame', g: 'glass', s: 'sand', K: 'crown', G: 'gem', e: 'eye', d: 'dark' };
+  const out = { frame: '', glass: '', sand: '', crown: '', gem: '', eye: '', dark: '' };
+  rows.forEach((r, y) => r.forEach((ch, x) => { const k = KEY[ch]; if (k) out[k] += 'M' + x + ' ' + y + 'h1v1h-1z'; }));
+  return out;
+}
+class Component extends DCLogic {
+  state = { total: null, remaining: null, running: true, phase: 'run', natural: false, music: true, rating: 0, spent: 0, logged: 0 };
+  componentDidMount(){
+    this.reset();
+    this.last = Date.now();
+    this.iv = setInterval(() => this.tick(), 200);
+  }
+  componentWillUnmount(){ clearInterval(this.iv); }
+  componentDidUpdate(prev){
+    if (prev.startMinutes !== this.props.startMinutes) this.reset();
+  }
+  reset(){
+    const m = Number(this.props.startMinutes ?? 25);
+    const tot = Math.max(60, Math.round(m * 60));
+    this.setState({ total: tot, remaining: tot, running: true, phase: 'run', natural: false, rating: 0, spent: 0, logged: 0 });
+  }
+  tick(){
+    const now = Date.now();
+    const dt = (now - this.last) / 1000;
+    this.last = now;
+    const s = this.state;
+    if (s.phase !== 'run' || !s.running || s.remaining == null) return;
+    const speed = SPEEDS[this.props.demoSpeed] || 1;
+    const r = Math.max(0, s.remaining - dt * speed);
+    if (r <= 0) this.setState({ remaining: 0, phase: 'report', natural: true, spent: s.spent + s.total });
+    else this.setState({ remaining: r });
+  }
+  renderVals(){
+    const t = THEMES[this.props.theme] || THEMES['tokyo-night'];
+    const font = FONTS[this.props.bodyFont] || FONTS['JetBrains Mono'];
+    const s = this.state;
+    const alarm = this.props.alarm || 'ring + shake';
+    const total = s.total || 1500;
+    const rem = s.remaining == null ? total : s.remaining;
+    const secs = Math.ceil(rem);
+    const clock = String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0');
+    const isRun = s.phase === 'run';
+    const lastMin = isRun && secs <= 60;
+    const paused = isRun && !s.running;
+    let fill = t.accent, onFill = t.onAccent;
+    if (paused) { fill = t.dim; onFill = t.panel; }
+    else if (lastMin) { fill = t.warn; onFill = t.onWarn || t.onAccent; }
+    const fillW = Math.round((rem / total) * BAR / 4) * 4;
+    const ringing = s.phase === 'report' && s.natural;
+    const cells = [1, 2, 3, 4, 5].map((n) => ({
+      on: s.rating === n,
+      label: (n * 20) + '% on task',
+      bg: n <= s.rating ? t.accent : t.panel2,
+      edge: n <= s.rating ? t.accent : t.line,
+      pick: () => this.setState({ rating: n })
+    }));
+    let status = 'Focusing · lofi on';
+    if (!s.music) status = 'Focusing';
+    if (paused) status = 'Paused';
+    if (lastMin) status = 'Last minute';
+    if (s.phase === 'report') status = s.natural ? 'Time is up' : 'Stopped early';
+    if (s.phase === 'logged') status = 'Done';
+    return {
+      t, font, clock, fillW, fill, onFill,
+      m: mascot(rem / total, ringing ? 'alarm' : (isRun && s.running ? 'run' : 'idle')),
+      ink: this.props.theme === 'catppuccin-latte' ? '#232634' : t.shadow,
+      ariaTime: clock + ' remaining',
+      status,
+      edge: ringing ? t.danger : t.line,
+      shakeClass: ringing && alarm.indexOf('shake') >= 0 ? 'shake' : '',
+      showBell: ringing && alarm.indexOf('ring') >= 0,
+      bellClass: 'ring',
+      blinkClass: ringing ? 'blink' : '',
+      isRun, paused, running: isRun && s.running,
+      pauseLabel: s.running ? 'Pause' : 'Resume',
+      isReport: s.phase === 'report',
+      isLogged: s.phase === 'logged',
+      reportTitle: s.natural ? 'Time’s up.' : 'Stopped.',
+      music: s.music,
+      cells,
+      ratingLabel: s.rating ? (s.rating * 20) + '% on task' : 'Pick one',
+      noRating: !s.rating,
+      loggedMin: s.logged,
+      spentMin: Math.round(s.spent / 60),
+      toggleMusic: () => this.setState({ music: !s.music }),
+      togglePause: () => { this.last = Date.now(); this.setState({ running: !s.running }); },
+      stop: () => this.setState({ phase: 'report', natural: false, spent: s.spent + (total - rem) }),
+      extend: () => { this.last = Date.now(); this.setState({ total: 300, remaining: 300, running: true, phase: 'run', natural: false, rating: 0 }); },
+      log: () => { if (!s.rating) return; this.setState({ phase: 'logged', logged: Math.round(s.spent / 60 * s.rating / 5) }); },
+      again: () => this.reset()
+    };
+  }
+}
+</script>
+</body>
+</html>

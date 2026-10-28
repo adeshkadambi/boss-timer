@@ -1,0 +1,60 @@
+/* Floating timer window (design/screens/Timer.dc.html and TimerStates.dc.html). */
+
+html, body.timer-body { height: auto; overflow: hidden; background: var(--panel); }
+/* The window is the box: its pixel border is drawn inside, and goes danger when time is up. */
+.win {
+  width: 400px; /* fixed: the bar's math assumes a 376px inner width */
+  background: var(--panel);
+  box-shadow: inset 0 0 0 4px var(--line);
+  padding: 12px 12px 14px; /* ≥8px so the shake never clips */
+}
+.win.alarm { box-shadow: inset 0 0 0 4px var(--danger); }
+.content { display: flex; flex-direction: column; gap: 10px; }
+
+.trow { display: flex; align-items: center; gap: 4px; min-height: 44px; }
+.grip { color: var(--dim); flex: none; cursor: grab; display: flex; }
+.trow .mascot { margin-left: 2px; }
+.ttitle { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-left: 6px; cursor: default; }
+.tname { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tstatus { font-size: 12px; color: var(--dim); }
+.tstatus.warn { color: var(--warn); }
+.tstatus.err { color: var(--danger); }
+
+.ibtn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--dim); cursor: pointer; flex: none; padding: 0; }
+.ibtn:hover { background: var(--panel2); color: var(--fg); }
+.ibtn[aria-pressed="true"] { color: var(--accent); }
+.bell { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--danger); flex: none; }
+
+/* The bar: segment track, fill shrinking right to left, two text layers. */
+.bar { position: relative; height: 52px; background: repeating-linear-gradient(90deg, var(--panel2) 0 14px, var(--panel) 14px 16px); }
+.digits { font: 400 44px/1 var(--digits); letter-spacing: .06em; display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+.bar > .digits { position: absolute; inset: 0; color: var(--fg); }
+.fill { position: absolute; left: 0; top: 0; bottom: 0; overflow: hidden; background: repeating-linear-gradient(90deg, var(--fillc) 0 14px, color-mix(in srgb, var(--fillc) 70%, var(--panel)) 14px 16px); }
+.fill .digits { height: 52px; color: var(--onfill); }
+.bar.run { --fillc: var(--accent); --onfill: var(--onAccent); }
+.bar.paused { --fillc: var(--dim); --onfill: var(--panel); }
+.bar.last { --fillc: var(--warn); --onfill: var(--onWarn); }
+.bar.last .fill { background: var(--warn); }
+.bar.last > .digits { color: var(--warn); }
+.bar.up > .digits { color: var(--danger); }
+.bar.done > .digits { color: var(--dim); }
+
+.q { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+.q-title { font: 600 16px/1.25 var(--pixel); margin: 0; }
+.cells { display: flex; gap: 6px; }
+.cell { flex: 1; height: 36px; border: 0; padding: 0; cursor: pointer; background: var(--panel2); box-shadow: inset 0 0 0 2px var(--line); }
+.cell.on { background: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.cell:hover:not(.on) { box-shadow: inset 0 0 0 2px var(--fg); }
+.scale { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--dim); }
+.scale .now { color: var(--fg); font-weight: 500; }
+.qbtns { display: flex; gap: 10px; }
+.qbtns .primary { flex: 1; }
+.sub { font-size: 13px; color: var(--dim); margin: 0; }
+
+@keyframes pxshake { 0%{transform:translate(0,0)} 15%{transform:translate(-8px,0)} 30%{transform:translate(8px,-4px)} 45%{transform:translate(-8px,4px)} 60%{transform:translate(4px,0)} 75%{transform:translate(-4px,0)} 100%{transform:translate(0,0)} }
+@keyframes pxring { 0%{transform:rotate(0)} 25%{transform:rotate(-18deg)} 50%{transform:rotate(0)} 75%{transform:rotate(18deg)} 100%{transform:rotate(0)} }
+@keyframes pxblink { 0%{opacity:1} 50%{opacity:0} }
+.shake { animation: pxshake .42s steps(1, end) 6; }
+.ring { animation: pxring .3s steps(1, end) 12; transform-origin: 50% 0; }
+.blink { animation: pxblink 1s steps(1, end) infinite; }
+@media (prefers-reduced-motion: reduce) { .shake, .ring, .blink { animation: none; } }

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Pixelify+Sans:wght@400;500;700&amp;family=VT323&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit}
+.pxbox{box-shadow:0 -4px 0 0 var(--line),0 4px 0 0 var(--line),-4px 0 0 0 var(--line),4px 0 0 0 var(--line),8px 8px 0 0 var(--shadow)}
+.pxsm{box-shadow:0 -2px 0 0 var(--line),0 2px 0 0 var(--line),-2px 0 0 0 var(--line),2px 0 0 0 var(--line)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border:0;cursor:pointer;text-decoration:none;font:500 15px/1 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--fg);background:var(--panel2);box-shadow:0 -2px 0 0 var(--line),0 2px 0 0 var(--line),-2px 0 0 0 var(--line),2px 0 0 0 var(--line),inset 0 -4px 0 0 rgba(0,0,0,.22)}
+.btn:hover{background:color-mix(in srgb,var(--panel2) 82%,var(--fg))}
+.btn:active{transform:translateY(2px)}
+.btn.danger{color:var(--danger)}
+.nav{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0 12px;border:0;background:transparent;color:var(--dim);cursor:pointer;text-decoration:none;font:500 15px/1 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.05em;text-align:left}
+.nav:hover{color:var(--fg);background:var(--panel2)}
+.nav[aria-current="page"]{color:var(--fg);background:var(--panel2);box-shadow:inset 0 0 0 2px var(--accent)}
+.tcard{border:0;cursor:pointer;text-align:left;padding:14px;display:flex;flex-direction:column;gap:12px;font:inherit}
+.lbl{font:500 14px/1.2 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.h3{margin:0;font:700 17px/1.2 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.04em}
+.field{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer}
+.field input[type=checkbox],.field input[type=radio]{width:18px;height:18px;margin:0;accent-color:var(--accent);flex:none}
+.hint{font-size:12.5px;color:var(--dim)}
+.sel,.txt{height:44px;border:0;background:var(--bg);color:var(--fg);padding:0 12px;font:inherit;font-size:14px}
+:focus-visible{outline:2px dashed var(--accent);outline-offset:3px}
+</style>
+</helmet>
+<div style="--bg: {{t.bg}}; --panel: {{t.panel}}; --panel2: {{t.panel2}}; --line: {{t.line}}; --fg: {{t.fg}}; --dim: {{t.dim}}; --accent: {{t.accent}}; --accent2: {{t.accent2}}; --warn: {{t.warn}}; --danger: {{t.danger}}; --onAccent: {{t.onAccent}}; --shadow: {{t.shadow}}; --ink: {{ink}}; --body: {{font}}; min-height: 100vh; background-color: var(--bg); background-image: conic-gradient(color-mix(in srgb, var(--fg) 4%, transparent) 25%, transparent 0 50%, color-mix(in srgb, var(--fg) 4%, transparent) 0 75%, transparent 0); background-size: 4px 4px; color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.45; padding: 28px 24px 40px">
+
+<div style="width: 100%; max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; align-items: center; gap: 14px">
+<a class="btn" href="Main.dc.html" aria-label="Back to today" style="width: 44px; padding: 0"><svg width="14" height="14" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M4 1h1v6H4z M3 2h1v4H3z M2 3h1v2H2z"></path></svg></a>
+<svg width="32" height="32" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-label="Boss Timer" style="flex: none"><path style="fill: color-mix(in srgb, var(--fg) 14%, var(--panel2))" d="{{m.glass}}"></path><path style="fill: var(--accent)" d="{{m.sand}}"></path><path style="fill: var(--fg)" d="{{m.frame}}"></path><path style="fill: var(--warn)" d="{{m.crown}}"></path><path style="fill: var(--danger)" d="{{m.gem}}"></path><path style="fill: var(--danger)" d="{{m.eye}}"></path><path style="fill: var(--ink)" d="{{m.dark}}"></path></svg>
+<h1 style="margin: 0; font: 700 28px/1.1 'Pixelify Sans', ui-monospace, monospace; letter-spacing: .02em">Settings</h1>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px">
+<nav class="pxbox" aria-label="Settings sections" style="flex: 1 1 200px; max-width: 100%; background: var(--panel); padding: 10px; display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{tabs}}" as="n" hint-placeholder-count="4">
+<button class="nav" type="button" aria-current="{{n.current}}" onClick="{{n.go}}"><svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="{{n.icon}}"></path></svg>{{n.label}}</button>
+</sc-for>
+<a class="nav" href="Reports.dc.html"><svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M1 4h1v3H1z M3 2h1v5H3z M5 3h1v4H5z M0 7h8v1H0z"></path></svg>Reports</a>
+</nav>
+
+<section class="pxbox" style="flex: 999 1 560px; min-width: 0; background: var(--panel); padding: 24px; display: flex; flex-direction: column; gap: 28px">
+
+<sc-if value="{{isAccounts}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 28px">
+<h2 class="lbl" style="margin: 0">Accounts</h2>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<svg width="18" height="18" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" style="color: var(--accent2)"><path d="M2 0h1v1H2z M5 0h1v1H5z M0 1h8v2H0z M0 3h1v5H0z M7 3h1v5H7z M1 7h6v1H1z M2 4h1v1H2z"></path></svg>
+<h3 class="h3">Google Calendar</h3>
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--dim)"><span style="width: 8px; height: 8px; background: var(--accent)"></span>Connected</span>
+</div>
+<span class="hint">Signed in as [your Google account]</span>
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column">
+<legend class="hint" style="padding: 0; margin-bottom: 4px">Calendars to show</legend>
+<label class="field"><input type="checkbox" checked="{{cals.personal}}" onChange="{{toggleCal.personal}}">Personal</label>
+<label class="field"><input type="checkbox" checked="{{cals.work}}" onChange="{{toggleCal.work}}">Work</label>
+<label class="field"><input type="checkbox" checked="{{cals.holidays}}" onChange="{{toggleCal.holidays}}">Holidays</label>
+</fieldset>
+<div style="display: flex; flex-wrap: wrap; gap: 12px"><button class="btn" type="button">Sync now</button><button class="btn danger" type="button">Disconnect</button></div>
+</div>
+<div style="height: 2px; background: var(--line)"></div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<svg width="18" height="18" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" style="color: var(--accent)"><path d="M0 1h2v2H0z M3 1h5v2H3z M0 5h2v2H0z M3 5h5v2H3z"></path></svg>
+<h3 class="h3">Todoist</h3>
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--dim)"><span style="width: 8px; height: 8px; background: var(--accent)"></span>Connected</span>
+</div>
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column">
+<legend class="hint" style="padding: 0; margin-bottom: 4px">Tasks to show</legend>
+<label class="field"><input type="radio" name="scope" checked="{{scopeToday}}" onChange="{{setScopeToday}}">Due today</label>
+<label class="field"><input type="radio" name="scope" checked="{{scopeOverdue}}" onChange="{{setScopeOverdue}}">Due today + overdue</label>
+</fieldset>
+<div style="display: flex; flex-wrap: wrap; gap: 12px"><button class="btn" type="button">Sync now</button><button class="btn danger" type="button">Disconnect</button></div>
+</div>
+<div style="height: 2px; background: var(--line)"></div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<label for="sync" style="font-size: 14px">Sync every</label>
+<select id="sync" class="sel pxsm"><option>5 minutes</option><option>15 minutes</option><option>30 minutes</option></select>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isTimer}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 28px">
+<h2 class="lbl" style="margin: 0">Timer &amp; alarm</h2>
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column">
+<legend class="h3" style="padding: 0; margin-bottom: 6px">When time is up</legend>
+<label class="field"><input type="radio" name="alarm" checked="{{alarmBoth}}" onChange="{{setAlarmBoth}}">Ring and shake the timer</label>
+<label class="field"><input type="radio" name="alarm" checked="{{alarmShake}}" onChange="{{setAlarmShake}}">Shake only</label>
+<label class="field"><input type="radio" name="alarm" checked="{{alarmRing}}" onChange="{{setAlarmRing}}">Ring only</label>
+</fieldset>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<label for="snd" style="font-size: 14px">Alarm sound</label>
+<select id="snd" class="sel pxsm"><option>Chime</option><option>8-bit bell</option><option>Soft beep</option></select>
+<button class="btn" type="button">Preview</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<label class="field"><input type="checkbox" checked="{{ask}}" onChange="{{toggleAsk}}">Ask how much was on task when a timer ends</label>
+<span class="hint" style="padding-left: 28px">Your answer is what Reports counts as focused time.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<label class="field"><input type="checkbox" checked="{{onTop}}" onChange="{{toggleOnTop}}">Keep the timer above other windows</label>
+<span class="hint" style="padding-left: 28px">Some Linux desktops on Wayland ignore this.</span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isSound}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 28px">
+<h2 class="lbl" style="margin: 0">Sound</h2>
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column">
+<legend class="h3" style="padding: 0; margin-bottom: 6px">Lofi source</legend>
+<label class="field"><input type="radio" name="src" checked="{{srcBuiltin}}" onChange="{{setSrcBuiltin}}">Built-in tracks</label>
+<label class="field"><input type="radio" name="src" checked="{{srcStream}}" onChange="{{setSrcStream}}">Stream URL</label>
+</fieldset>
+<sc-if value="{{srcStream}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="url" class="hint">Stream URL</label>
+<input id="url" class="txt pxsm" type="url" placeholder="https://" style="max-width: 460px">
+</div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 8px; max-width: 460px">
+<label for="vol" style="font-size: 14px; display: flex; justify-content: space-between"><span>Volume</span><span style="color: var(--dim)">{{volume}}%</span></label>
+<input id="vol" type="range" min="0" max="100" value="{{volume}}" onChange="{{setVolume}}" style="accent-color: var(--accent); height: 24px; margin: 0">
+</div>
+<label class="field"><input type="checkbox" checked="{{pauseMusic}}" onChange="{{togglePauseMusic}}">Pause music when the timer pauses</label>
+</div>
+</sc-if>
+
+<sc-if value="{{isAppearance}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 28px">
+<h2 class="lbl" style="margin: 0">Appearance</h2>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<h3 class="h3">Theme</h3>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 16px">
+<sc-for list="{{themes}}" as="th" hint-placeholder-count="8">
+<button class="tcard" type="button" aria-pressed="{{th.on}}" onClick="{{th.pick}}" style="background: {{th.panel}}; color: {{th.fg}}; box-shadow: {{th.ring}}">
+<span style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%">
+<span style="font: 600 15px/1.2 'Pixelify Sans', ui-monospace, monospace">{{th.label}}</span>
+<span style="font-size: 12px; color: {{th.dim}}">{{th.mode}}</span>
+</span>
+<span style="display: flex; align-items: center; gap: 10px; width: 100%">
+<span style="flex: 1; height: 16px; background: repeating-linear-gradient(90deg, {{th.panel2}} 0 10px, {{th.panel}} 10px 12px)"><span style="display: block; width: 60%; height: 16px; background: repeating-linear-gradient(90deg, {{th.accent}} 0 10px, {{th.panel}} 10px 12px)"></span></span>
+<span style="font: 400 22px/1 'VT323', ui-monospace, monospace">18:42</span>
+</span>
+<span style="display: flex; gap: 4px">
+<span style="width: 14px; height: 14px; background: {{th.accent}}"></span>
+<span style="width: 14px; height: 14px; background: {{th.accent2}}"></span>
+<span style="width: 14px; height: 14px; background: {{th.warn}}"></span>
+<span style="width: 14px; height: 14px; background: {{th.danger}}"></span>
+<span style="width: 14px; height: 14px; background: {{th.fg}}"></span>
+</span>
+</button>
+</sc-for>
+</div>
+</div>
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px">
+<legend class="h3" style="padding: 0; margin-bottom: 8px">Text font</legend>
+<label class="field" style="align-items: flex-start; padding: 6px 0"><input type="radio" name="font" checked="{{fontMono}}" onChange="{{setFontMono}}" style="margin-top: 3px"><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace">JetBrains Mono</span><span class="hint">Easiest to read. Pixel style stays on headings, borders and the timer.</span></span></label>
+<label class="field" style="align-items: flex-start; padding: 6px 0"><input type="radio" name="font" checked="{{fontPixel}}" onChange="{{setFontPixel}}" style="margin-top: 3px"><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'Pixelify Sans', ui-monospace, monospace">Pixelify Sans</span><span class="hint">Pixel font everywhere. Harder to read at small sizes.</span></span></label>
+</fieldset>
+</div>
+</sc-if>
+
+</section>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["everforest","catppuccin-mocha","catppuccin-latte","nord","tokyo-night","gruvbox","rose-pine","dracula"],"default":"tokyo-night","section":"Look"},"bodyFont":{"editor":"enum","options":["JetBrains Mono","Pixelify Sans"],"default":"JetBrains Mono","section":"Look"},"$preview":{"width":1100,"height":820}}'>
+const THEMES = {
+  'everforest': {label:'Everforest', mode:'Dark', bg:'#272e33', panel:'#2d353b', panel2:'#3d484d', line:'#56635f', fg:'#d3c6aa', dim:'#9da9a0', accent:'#a7c080', accent2:'#7fbbb3', warn:'#dbbc7f', danger:'#e67e80', onAccent:'#232a2e', shadow:'#1e2326'},
+  'catppuccin-mocha': {label:'Catppuccin Mocha', mode:'Dark', bg:'#181825', panel:'#1e1e2e', panel2:'#313244', line:'#585b70', fg:'#cdd6f4', dim:'#a6adc8', accent:'#cba6f7', accent2:'#89b4fa', warn:'#fab387', danger:'#f38ba8', onAccent:'#1e1e2e', shadow:'#11111b'},
+  'catppuccin-latte': {label:'Catppuccin Latte', mode:'Light', bg:'#e6e9ef', panel:'#eff1f5', panel2:'#dce0e8', line:'#9ca0b0', fg:'#4c4f69', dim:'#5c5f77', accent:'#8839ef', accent2:'#1e66f5', warn:'#df8e1d', danger:'#d20f39', onAccent:'#eff1f5', shadow:'#bcc0cc'},
+  'nord': {label:'Nord', mode:'Dark', bg:'#2e3440', panel:'#3b4252', panel2:'#434c5e', line:'#616e88', fg:'#eceff4', dim:'#c2c9d6', accent:'#88c0d0', accent2:'#81a1c1', warn:'#ebcb8b', danger:'#bf616a', onAccent:'#2e3440', shadow:'#242933'},
+  'tokyo-night': {label:'Tokyo Night', mode:'Dark', bg:'#16161e', panel:'#1a1b26', panel2:'#292e42', line:'#414868', fg:'#c0caf5', dim:'#a9b1d6', accent:'#7aa2f7', accent2:'#bb9af7', warn:'#e0af68', danger:'#f7768e', onAccent:'#16161e', shadow:'#0c0c10'},
+  'gruvbox': {label:'Gruvbox', mode:'Dark', bg:'#1d2021', panel:'#282828', panel2:'#3c3836', line:'#665c54', fg:'#ebdbb2', dim:'#bdae93', accent:'#b8bb26', accent2:'#83a598', warn:'#fabd2f', danger:'#fb4934', onAccent:'#1d2021', shadow:'#121414'},
+  'rose-pine': {label:'Rosé Pine', mode:'Dark', bg:'#191724', panel:'#1f1d2e', panel2:'#26233a', line:'#524f67', fg:'#e0def4', dim:'#908caa', accent:'#c4a7e7', accent2:'#9ccfd8', warn:'#f6c177', danger:'#eb6f92', onAccent:'#191724', shadow:'#100e18'},
+  'dracula': {label:'Dracula', mode:'Dark', bg:'#21222c', panel:'#282a36', panel2:'#343746', line:'#6272a4', fg:'#f8f8f2', dim:'#b6bcd6', accent:'#bd93f9', accent2:'#8be9fd', warn:'#ffb86c', danger:'#ff5555', onAccent:'#21222c', shadow:'#191a21'}
+};
+const FONTS = {
+  'JetBrains Mono': "'JetBrains Mono', ui-monospace, Menlo, monospace",
+  'Pixelify Sans': "'Pixelify Sans', ui-monospace, monospace"
+};
+const TABS = [
+  {id:'accounts', label:'Accounts', icon:'M3 1h2v3H3z M2 2h1v1H2z M5 2h1v1H5z M1 5h6v2H1z'},
+  {id:'timer', label:'Timer & alarm', icon:'M3 0h2v1H3z M2 1h4v1H2z M1 2h6v4H1z M0 6h8v1H0z M3 7h2v1H3z'},
+  {id:'sound', label:'Sound', icon:'M0 3h2v2H0z M2 2h1v4H2z M3 1h1v6H3z M5 2h1v1H5z M5 5h1v1H5z M6 3h1v2H6z'},
+  {id:'appearance', label:'Appearance', icon:'M0 0h3v3H0z M5 0h3v3H5z M0 5h3v3H0z M5 5h3v3H5z'}
+];
+const MASCOT = ['....K..KK..K....','....KKKGGKKK....','....KKKKKKKK....','..FFFFFFFFFFFF..','..F.gdggggdg.F..','..F.ggdggdgg.F..','..F..geggeg..F..','..F...gddg...F..','..F....gg....F..','..F...gggg...F..','..F..gggggg..F..','..F.gggggggg.F..','..F.gggggggg.F..','..FFFFFFFFFFFF..','...FF......FF...','................'];
+function mascot(f, mood){
+  const rows = MASCOT.map((r) => r.split(''));
+  if (mood === 'alarm') { rows[6] = '..F..eeggee..F..'.split(''); rows[7] = '..F...dddd...F..'.split(''); }
+  const cells = (y) => { const xs = []; rows[y].forEach((ch, x) => { if (ch === 'g') xs.push(x); }); return xs.sort((a, b) => Math.abs(a - 7.5) - Math.abs(b - 7.5)); };
+  const fill = (ys, n) => { ys.forEach((y) => cells(y).forEach((x) => { if (n > 0) { rows[y][x] = 's'; n--; } })); };
+  const up = [7, 6, 5, 4], low = [12, 11, 10, 9];
+  const cap = (ys) => ys.reduce((a, y) => a + cells(y).length, 0);
+  const upCap = cap(up), lowCap = cap(low);
+  fill(up, Math.round(f * upCap));
+  fill(low, Math.round((1 - f) * lowCap));
+  if (mood === 'run' && f > 0 && f < 1) rows[8][7] = 's';
+  const KEY = { F: 'frame', g: 'glass', s: 'sand', K: 'crown', G: 'gem', e: 'eye', d: 'dark' };
+  const out = { frame: '', glass: '', sand: '', crown: '', gem: '', eye: '', dark: '' };
+  rows.forEach((r, y) => r.forEach((ch, x) => { const k = KEY[ch]; if (k) out[k] += 'M' + x + ' ' + y + 'h1v1h-1z'; }));
+  return out;
+}
+class Component extends DCLogic {
+  state = { tab: 'appearance', theme: null, font: null, cals: { personal: true, work: true, holidays: false }, scope: 'overdue', alarm: 'both', ask: true, onTop: true, src: 'builtin', volume: 60, pauseMusic: true };
+  renderVals(){
+    const s = this.state;
+    const themeId = s.theme || this.props.theme || 'tokyo-night';
+    const t = THEMES[themeId] || THEMES['tokyo-night'];
+    const fontId = s.font || this.props.bodyFont || 'JetBrains Mono';
+    const set = (patch) => () => this.setState(patch);
+    const themes = Object.keys(THEMES).map((id) => {
+      const th = THEMES[id];
+      const on = id === themeId;
+      return { ...th, on,
+        ring: on ? ('0 0 0 4px ' + t.accent + ', inset 0 0 0 2px ' + th.line) : ('inset 0 0 0 2px ' + th.line),
+        pick: () => this.setState({ theme: id }) };
+    });
+    return {
+      t, font: FONTS[fontId] || FONTS['JetBrains Mono'],
+      m: mascot(0.6, 'idle'),
+      ink: themeId === 'catppuccin-latte' ? '#232634' : t.shadow,
+      tabs: TABS.map((x) => ({ ...x, current: x.id === s.tab ? 'page' : 'false', go: () => this.setState({ tab: x.id }) })),
+      isAccounts: s.tab === 'accounts', isTimer: s.tab === 'timer', isSound: s.tab === 'sound', isAppearance: s.tab === 'appearance',
+      cals: s.cals,
+      toggleCal: {
+        personal: () => this.setState({ cals: { ...s.cals, personal: !s.cals.personal } }),
+        work: () => this.setState({ cals: { ...s.cals, work: !s.cals.work } }),
+        holidays: () => this.setState({ cals: { ...s.cals, holidays: !s.cals.holidays } })
+      },
+      scopeToday: s.scope === 'today', scopeOverdue: s.scope === 'overdue',
+      setScopeToday: set({ scope: 'today' }), setScopeOverdue: set({ scope: 'overdue' }),
+      alarmBoth: s.alarm === 'both', alarmShake: s.alarm === 'shake', alarmRing: s.alarm === 'ring',
+      setAlarmBoth: set({ alarm: 'both' }), setAlarmShake: set({ alarm: 'shake' }), setAlarmRing: set({ alarm: 'ring' }),
+      ask: s.ask, toggleAsk: set({ ask: !s.ask }),
+      onTop: s.onTop, toggleOnTop: set({ onTop: !s.onTop }),
+      srcBuiltin: s.src === 'builtin', srcStream: s.src === 'stream',
+      setSrcBuiltin: set({ src: 'builtin' }), setSrcStream: set({ src: 'stream' }),
+      volume: s.volume, setVolume: (e) => this.setState({ volume: Number(e.target.value) }),
+      pauseMusic: s.pauseMusic, togglePauseMusic: set({ pauseMusic: !s.pauseMusic }),
+      themes,
+      fontMono: fontId === 'JetBrains Mono', fontPixel: fontId === 'Pixelify Sans',
+      setFontMono: set({ font: 'JetBrains Mono' }), setFontPixel: set({ font: 'Pixelify Sans' })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Theme gallery</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Pixelify+Sans:wght@400;500;700&amp;family=VT323&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+.pxbox{box-shadow:0 -4px 0 0 var(--line),0 4px 0 0 var(--line),-4px 0 0 0 var(--line),4px 0 0 0 var(--line),8px 8px 0 0 var(--shadow)}
+.pxsm{box-shadow:0 -2px 0 0 var(--line),0 2px 0 0 var(--line),-2px 0 0 0 var(--line),2px 0 0 0 var(--line)}
+.digits{font:400 40px/1 'VT323',ui-monospace,monospace;letter-spacing:.06em}
+</style>
+</helmet>
+<div style="width: 1040px; height: 1200px; background: #111114; color: #e6e6ea; font-family: {{font}}; font-size: 15px; line-height: 1.4; padding: 40px; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; align-items: baseline; gap: 16px">
+<h1 style="margin: 0; font: 700 28px/1.1 'Pixelify Sans', ui-monospace, monospace">Themes</h1>
+<span style="font-size: 13px; color: #b4b4bc">The floating timer in each theme, at 62% remaining</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+<sc-for list="{{themes}}" as="th" hint-placeholder-count="8">
+<div style="--line: {{th.line}}; --shadow: {{th.shadow}}; --fg: {{th.fg}}; --panel2: {{th.panel2}}; --accent: {{th.accent}}; --warn: {{th.warn}}; --danger: {{th.danger}}; --ink: {{th.ink}}; background-color: {{th.bg}}; background-image: conic-gradient(color-mix(in srgb, {{th.fg}} 4%, transparent) 25%, transparent 0 50%, color-mix(in srgb, {{th.fg}} 4%, transparent) 0 75%, transparent 0); background-size: 4px 4px; color: {{th.fg}}; padding: 22px 24px 30px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: center; gap: 12px">
+<svg width="32" height="32" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" style="flex: none"><path style="fill: color-mix(in srgb, var(--fg) 14%, var(--panel2))" d="{{m.glass}}"></path><path style="fill: var(--accent)" d="{{m.sand}}"></path><path style="fill: var(--fg)" d="{{m.frame}}"></path><path style="fill: var(--warn)" d="{{m.crown}}"></path><path style="fill: var(--danger)" d="{{m.gem}}"></path><path style="fill: var(--danger)" d="{{m.eye}}"></path><path style="fill: var(--ink)" d="{{m.dark}}"></path></svg>
+<span style="font: 700 18px/1.2 'Pixelify Sans', ui-monospace, monospace">{{th.label}}</span>
+<span style="font-size: 12.5px; color: {{th.dim}}">{{th.mode}}</span>
+<span style="margin-left: auto; display: flex; gap: 4px">
+<span title="accent" style="width: 18px; height: 18px; background: {{th.accent}}"></span>
+<span title="accent 2" style="width: 18px; height: 18px; background: {{th.accent2}}"></span>
+<span title="warning" style="width: 18px; height: 18px; background: {{th.warn}}"></span>
+<span title="alarm" style="width: 18px; height: 18px; background: {{th.danger}}"></span>
+<span title="text" style="width: 18px; height: 18px; background: {{th.fg}}"></span>
+</span>
+</div>
+<div class="pxbox" style="width: 360px; background: {{th.panel}}; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Write first draft of Q4 planning doc</span><span style="font-size: 12px; color: {{th.dim}}">Focusing · lofi on</span></div>
+<svg width="18" height="18" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" style="color: {{th.accent}}"><path d="M3 1h4v1H3z M3 2h1v4H3z M6 2h1v3H6z M1 5h3v2H1z M4 4h3v2H4z"></path></svg>
+<svg width="18" height="18" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" style="color: {{th.dim}}"><path d="M1 1h2v6H1z M5 1h2v6H5z"></path></svg>
+</div>
+<div class="pxsm" style="position: relative; height: 48px; background: repeating-linear-gradient(90deg, {{th.panel2}} 0 14px, {{th.panel}} 14px 16px)">
+<div class="digits" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: {{th.fg}}">18:42</div>
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: 208px; overflow: hidden; background: repeating-linear-gradient(90deg, {{th.accent}} 0 14px, color-mix(in srgb, {{th.accent}} 70%, {{th.panel}}) 14px 16px)"><div class="digits" style="width: 336px; height: 48px; display: flex; align-items: center; justify-content: center; color: {{th.onAccent}}">18:42</div></div>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"bodyFont":{"editor":"enum","options":["JetBrains Mono","Pixelify Sans"],"default":"JetBrains Mono","section":"Look"},"$preview":{"width":1040,"height":1200}}'>
+const THEMES = [
+  {label:'Everforest', mode:'Dark', bg:'#272e33', panel:'#2d353b', panel2:'#3d484d', line:'#56635f', fg:'#d3c6aa', dim:'#9da9a0', accent:'#a7c080', accent2:'#7fbbb3', warn:'#dbbc7f', danger:'#e67e80', onAccent:'#232a2e', shadow:'#1e2326'},
+  {label:'Catppuccin Mocha', mode:'Dark', bg:'#181825', panel:'#1e1e2e', panel2:'#313244', line:'#585b70', fg:'#cdd6f4', dim:'#a6adc8', accent:'#cba6f7', accent2:'#89b4fa', warn:'#fab387', danger:'#f38ba8', onAccent:'#1e1e2e', shadow:'#11111b'},
+  {label:'Catppuccin Latte', mode:'Light', bg:'#e6e9ef', panel:'#eff1f5', panel2:'#dce0e8', line:'#9ca0b0', fg:'#4c4f69', dim:'#5c5f77', accent:'#8839ef', accent2:'#1e66f5', warn:'#df8e1d', danger:'#d20f39', onAccent:'#eff1f5', shadow:'#bcc0cc'},
+  {label:'Nord', mode:'Dark', bg:'#2e3440', panel:'#3b4252', panel2:'#434c5e', line:'#616e88', fg:'#eceff4', dim:'#c2c9d6', accent:'#88c0d0', accent2:'#81a1c1', warn:'#ebcb8b', danger:'#bf616a', onAccent:'#2e3440', shadow:'#242933'},
+  {label:'Tokyo Night', mode:'Dark', bg:'#16161e', panel:'#1a1b26', panel2:'#292e42', line:'#414868', fg:'#c0caf5', dim:'#a9b1d6', accent:'#7aa2f7', accent2:'#bb9af7', warn:'#e0af68', danger:'#f7768e', onAccent:'#16161e', shadow:'#0c0c10'},
+  {label:'Gruvbox', mode:'Dark', bg:'#1d2021', panel:'#282828', panel2:'#3c3836', line:'#665c54', fg:'#ebdbb2', dim:'#bdae93', accent:'#b8bb26', accent2:'#83a598', warn:'#fabd2f', danger:'#fb4934', onAccent:'#1d2021', shadow:'#121414'},
+  {label:'Rosé Pine', mode:'Dark', bg:'#191724', panel:'#1f1d2e', panel2:'#26233a', line:'#524f67', fg:'#e0def4', dim:'#908caa', accent:'#c4a7e7', accent2:'#9ccfd8', warn:'#f6c177', danger:'#eb6f92', onAccent:'#191724', shadow:'#100e18'},
+  {label:'Dracula', mode:'Dark', bg:'#21222c', panel:'#282a36', panel2:'#343746', line:'#6272a4', fg:'#f8f8f2', dim:'#b6bcd6', accent:'#bd93f9', accent2:'#8be9fd', warn:'#ffb86c', danger:'#ff5555', onAccent:'#21222c', shadow:'#191a21'}
+];
+const FONTS = {
+  'JetBrains Mono': "'JetBrains Mono', ui-monospace, Menlo, monospace",
+  'Pixelify Sans': "'Pixelify Sans', ui-monospace, monospace"
+};
+const MASCOT = ['....K..KK..K....','....KKKGGKKK....','....KKKKKKKK....','..FFFFFFFFFFFF..','..F.gdggggdg.F..','..F.ggdggdgg.F..','..F..geggeg..F..','..F...gddg...F..','..F....gg....F..','..F...gggg...F..','..F..gggggg..F..','..F.gggggggg.F..','..F.gggggggg.F..','..FFFFFFFFFFFF..','...FF......FF...','................'];
+function mascot(f, mood){
+  const rows = MASCOT.map((r) => r.split(''));
+  if (mood === 'alarm') { rows[6] = '..F..eeggee..F..'.split(''); rows[7] = '..F...dddd...F..'.split(''); }
+  const cells = (y) => { const xs = []; rows[y].forEach((ch, x) => { if (ch === 'g') xs.push(x); }); return xs.sort((a, b) => Math.abs(a - 7.5) - Math.abs(b - 7.5)); };
+  const fill = (ys, n) => { ys.forEach((y) => cells(y).forEach((x) => { if (n > 0) { rows[y][x] = 's'; n--; } })); };
+  const up = [7, 6, 5, 4], low = [12, 11, 10, 9];
+  const cap = (ys) => ys.reduce((a, y) => a + cells(y).length, 0);
+  const upCap = cap(up), lowCap = cap(low);
+  fill(up, Math.round(f * upCap));
+  fill(low, Math.round((1 - f) * lowCap));
+  if (mood === 'run' && f > 0 && f < 1) rows[8][7] = 's';
+  const KEY = { F: 'frame', g: 'glass', s: 'sand', K: 'crown', G: 'gem', e: 'eye', d: 'dark' };
+  const out = { frame: '', glass: '', sand: '', crown: '', gem: '', eye: '', dark: '' };
+  rows.forEach((r, y) => r.forEach((ch, x) => { const k = KEY[ch]; if (k) out[k] += 'M' + x + ' ' + y + 'h1v1h-1z'; }));
+  return out;
+}
+class Component extends DCLogic {
+  renderVals(){
+    return {
+      themes: THEMES.map((th) => ({ ...th, ink: th.mode === 'Light' ? '#232634' : th.shadow })),
+      m: mascot(0.62, 'run'),
+      font: FONTS[this.props.bodyFont] || FONTS['JetBrains Mono'] };
+  }
+}
+</script>
+</body>
+</html>

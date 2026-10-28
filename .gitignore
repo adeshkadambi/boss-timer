@@ -1,0 +1,14 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/schemas/
+.DS_Store
+*.log
+# Your Google OAuth desktop client (built into the app at compile time)
+src-tauri/google-client.json
+# Never commit local env files or secrets
+.env
+.env.*
+*.pem
+*.p12
+dev-secrets.json

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Boss Timer logo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Pixelify+Sans:wght@400;500;700&amp;family=VT323&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+.pxbox{box-shadow:0 -4px 0 0 var(--line),0 4px 0 0 var(--line),-4px 0 0 0 var(--line),4px 0 0 0 var(--line),8px 8px 0 0 var(--shadow)}
+.cap{font:500 14px/1.2 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+</style>
+</helmet>
+<div style="--bg: {{t.bg}}; --panel: {{t.panel}}; --panel2: {{t.panel2}}; --line: {{t.line}}; --fg: {{t.fg}}; --dim: {{t.dim}}; --accent: {{t.accent}}; --shadow: {{t.shadow}}; width: 1240px; height: 760px; background-color: var(--bg); background-image: conic-gradient(color-mix(in srgb, var(--fg) 4%, transparent) 25%, transparent 0 50%, color-mix(in srgb, var(--fg) 4%, transparent) 0 75%, transparent 0); background-size: 4px 4px; color: var(--fg); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 15px; padding: 48px; display: flex; gap: 56px">
+
+<div style="display: flex; flex-direction: column; gap: 16px; flex: none">
+<span class="cap">App icon</span>
+<div class="pxbox" style="width: 360px; height: 360px; background: var(--panel); display: flex; align-items: center; justify-content: center">
+<svg width="288" height="288" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-label="Boss Timer logo: an hourglass boss with a crown and angry face">
+<path fill="{{c.glass}}" d="{{big.glass}}"></path><path fill="{{c.sand}}" d="{{big.sand}}"></path><path fill="{{c.frame}}" d="{{big.frame}}"></path><path fill="{{c.crown}}" d="{{big.crown}}"></path><path fill="{{c.gem}}" d="{{big.gem}}"></path><path fill="{{c.eye}}" d="{{big.eye}}"></path><path fill="{{c.ink}}" d="{{big.dark}}"></path>
+</svg>
+</div>
+<span style="font-size: 12.5px; color: var(--dim)">16 × 16 pixel grid, scaled by whole numbers only</span>
+</div>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 36px">
+
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span class="cap">Wordmark</span>
+<div style="display: flex; flex-wrap: wrap; gap: 24px">
+<div class="pxbox" style="background: var(--panel); padding: 20px 28px; display: flex; align-items: center; gap: 18px">
+<svg width="64" height="64" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+<path fill="{{c.glass}}" d="{{big.glass}}"></path><path fill="{{c.sand}}" d="{{big.sand}}"></path><path fill="{{c.frame}}" d="{{big.frame}}"></path><path fill="{{c.crown}}" d="{{big.crown}}"></path><path fill="{{c.gem}}" d="{{big.gem}}"></path><path fill="{{c.eye}}" d="{{big.eye}}"></path><path fill="{{c.ink}}" d="{{big.dark}}"></path>
+</svg>
+<span style="font: 700 44px/1 'Pixelify Sans', ui-monospace, monospace; letter-spacing: .06em">BOSS TIMER</span>
+</div>
+<div style="--line: {{cl.line}}; --shadow: {{cl.shadow}}; background: {{cl.panel}}; color: {{cl.frame}}; padding: 20px 28px; display: flex; align-items: center; gap: 18px; box-shadow: 0 -4px 0 0 {{cl.line}}, 0 4px 0 0 {{cl.line}}, -4px 0 0 0 {{cl.line}}, 4px 0 0 0 {{cl.line}}, 8px 8px 0 0 {{cl.shadow}}">
+<svg width="64" height="64" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+<path fill="{{cl.glass}}" d="{{big.glass}}"></path><path fill="{{cl.sand}}" d="{{big.sand}}"></path><path fill="{{cl.frame}}" d="{{big.frame}}"></path><path fill="{{cl.crown}}" d="{{big.crown}}"></path><path fill="{{cl.gem}}" d="{{big.gem}}"></path><path fill="{{cl.eye}}" d="{{big.eye}}"></path><path fill="{{cl.ink}}" d="{{big.dark}}"></path>
+</svg>
+<span style="font: 700 44px/1 'Pixelify Sans', ui-monospace, monospace; letter-spacing: .06em">BOSS TIMER</span>
+</div>
+</div>
+</div>
+
+<div style="display: flex; gap: 48px; flex-wrap: wrap">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span class="cap">Sand drains with the timer</span>
+<div style="display: flex; align-items: flex-end; gap: 28px">
+<sc-for list="{{moods}}" as="m" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+<svg width="80" height="80" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-label="{{m.label}}">
+<path fill="{{c.glass}}" d="{{m.d.glass}}"></path><path fill="{{c.sand}}" d="{{m.d.sand}}"></path><path fill="{{c.frame}}" d="{{m.d.frame}}"></path><path fill="{{c.crown}}" d="{{m.d.crown}}"></path><path fill="{{c.gem}}" d="{{m.d.gem}}"></path><path fill="{{c.eye}}" d="{{m.d.eye}}"></path><path fill="{{c.ink}}" d="{{m.d.dark}}"></path>
+</svg>
+<span style="font-size: 12.5px; color: var(--dim)">{{m.label}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span class="cap">Sizes</span>
+<div style="display: flex; align-items: flex-end; gap: 24px">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+<svg width="{{s.px}}" height="{{s.px}}" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+<path fill="{{c.glass}}" d="{{s.d.glass}}"></path><path fill="{{c.sand}}" d="{{s.d.sand}}"></path><path fill="{{c.frame}}" d="{{s.d.frame}}"></path><path fill="{{c.crown}}" d="{{s.d.crown}}"></path><path fill="{{c.gem}}" d="{{s.d.gem}}"></path><path fill="{{c.eye}}" d="{{s.d.eye}}"></path><path fill="{{c.ink}}" d="{{s.d.dark}}"></path>
+</svg>
+<span style="font-size: 12.5px; color: var(--dim)">{{s.px}}px</span>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span class="cap">Tray icon — one color</span>
+<div style="display: flex; gap: 16px">
+<div style="display: flex; align-items: center; gap: 14px; height: 36px; padding: 0 14px; background: #1b1b1f; color: #f2f2f2">
+<svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="{{mono}}"></path></svg>
+<svg width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="{{mono}}"></path></svg>
+<span style="font-size: 12.5px">dark bar</span>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; height: 36px; padding: 0 14px; background: #ececef; color: #1b1b1f">
+<svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="{{mono}}"></path></svg>
+<svg width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="{{mono}}"></path></svg>
+<span style="font-size: 12.5px">light bar</span>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["everforest","catppuccin-mocha","catppuccin-latte","nord","tokyo-night","gruvbox","rose-pine","dracula"],"default":"tokyo-night","section":"Look"},"$preview":{"width":1240,"height":760}}'>
+const THEMES = {
+  'everforest': {bg:'#272e33', panel:'#2d353b', panel2:'#3d484d', line:'#56635f', fg:'#d3c6aa', dim:'#9da9a0', accent:'#a7c080', warn:'#dbbc7f', danger:'#e67e80', shadow:'#1e2326'},
+  'catppuccin-mocha': {bg:'#181825', panel:'#1e1e2e', panel2:'#313244', line:'#585b70', fg:'#cdd6f4', dim:'#a6adc8', accent:'#cba6f7', warn:'#fab387', danger:'#f38ba8', shadow:'#11111b'},
+  'catppuccin-latte': {bg:'#e6e9ef', panel:'#eff1f5', panel2:'#dce0e8', line:'#9ca0b0', fg:'#4c4f69', dim:'#5c5f77', accent:'#8839ef', warn:'#df8e1d', danger:'#d20f39', shadow:'#bcc0cc', ink:'#232634'},
+  'nord': {bg:'#2e3440', panel:'#3b4252', panel2:'#434c5e', line:'#616e88', fg:'#eceff4', dim:'#c2c9d6', accent:'#88c0d0', warn:'#ebcb8b', danger:'#bf616a', shadow:'#242933'},
+  'tokyo-night': {bg:'#16161e', panel:'#1a1b26', panel2:'#292e42', line:'#414868', fg:'#c0caf5', dim:'#a9b1d6', accent:'#7aa2f7', warn:'#e0af68', danger:'#f7768e', shadow:'#0c0c10'},
+  'gruvbox': {bg:'#1d2021', panel:'#282828', panel2:'#3c3836', line:'#665c54', fg:'#ebdbb2', dim:'#bdae93', accent:'#b8bb26', warn:'#fabd2f', danger:'#fb4934', shadow:'#121414'},
+  'rose-pine': {bg:'#191724', panel:'#1f1d2e', panel2:'#26233a', line:'#524f67', fg:'#e0def4', dim:'#908caa', accent:'#c4a7e7', warn:'#f6c177', danger:'#eb6f92', shadow:'#100e18'},
+  'dracula': {bg:'#21222c', panel:'#282a36', panel2:'#343746', line:'#6272a4', fg:'#f8f8f2', dim:'#b6bcd6', accent:'#bd93f9', warn:'#ffb86c', danger:'#ff5555', shadow:'#191a21'}
+};
+const MASCOT = [
+  '....K..KK..K....',
+  '....KKKGGKKK....',
+  '....KKKKKKKK....',
+  '..FFFFFFFFFFFF..',
+  '..F.gdggggdg.F..',
+  '..F.ggdggdgg.F..',
+  '..F..geggeg..F..',
+  '..F...gddg...F..',
+  '..F....gg....F..',
+  '..F...gggg...F..',
+  '..F..gggggg..F..',
+  '..F.gggggggg.F..',
+  '..F.gggggggg.F..',
+  '..FFFFFFFFFFFF..',
+  '...FF......FF...',
+  '................'
+];
+function mascot(f, mood){
+  const rows = MASCOT.map((r) => r.split(''));
+  if (mood === 'alarm') { rows[6] = '..F..eeggee..F..'.split(''); rows[7] = '..F...dddd...F..'.split(''); }
+  const cells = (y) => { const xs = []; rows[y].forEach((ch, x) => { if (ch === 'g') xs.push(x); }); return xs.sort((a, b) => Math.abs(a - 7.5) - Math.abs(b - 7.5)); };
+  const fill = (ys, n) => { ys.forEach((y) => cells(y).forEach((x) => { if (n > 0) { rows[y][x] = 's'; n--; } })); };
+  const up = [7, 6, 5, 4], low = [12, 11, 10, 9];
+  const cap = (ys) => ys.reduce((a, y) => a + cells(y).length, 0);
+  const upCap = cap(up), lowCap = cap(low);
+  fill(up, Math.round(f * upCap));
+  fill(low, Math.round((1 - f) * lowCap));
+  if (mood === 'run' && f > 0 && f < 1) rows[8][7] = 's';
+  const KEY = { F: 'frame', g: 'glass', s: 'sand', K: 'crown', G: 'gem', e: 'eye', d: 'dark' };
+  const out = { frame: '', glass: '', sand: '', crown: '', gem: '', eye: '', dark: '', mono: '' };
+  rows.forEach((r, y) => r.forEach((ch, x) => {
+    const k = KEY[ch]; if (!k) return;
+    const px = 'M' + x + ' ' + y + 'h1v1h-1z';
+    out[k] += px;
+    if (k !== 'glass') out.mono += px;
+  }));
+  return out;
+}
+function colorsFor(t){
+  return {
+    frame: t.fg, glass: 'color-mix(in srgb, ' + t.fg + ' 14%, ' + t.panel2 + ')', sand: t.accent,
+    crown: t.warn, gem: t.danger, eye: t.danger, ink: t.ink || t.shadow,
+    panel: t.panel, line: t.line, shadow: t.shadow
+  };
+}
+class Component extends DCLogic {
+  renderVals(){
+    const t = THEMES[this.props.theme] || THEMES['tokyo-night'];
+    const big = mascot(0.6, 'run');
+    return {
+      t, big, c: colorsFor(t), cl: colorsFor(THEMES['catppuccin-latte']),
+      mono: big.mono,
+      moods: [
+        { label: 'Full', d: mascot(1, 'idle') },
+        { label: 'Running', d: mascot(0.6, 'run') },
+        { label: 'Last grains', d: mascot(0.06, 'run') },
+        { label: 'Time’s up', d: mascot(0, 'alarm') }
+      ],
+      sizes: [128, 64, 32, 16].map((px) => ({ px, d: big }))
+    };
+  }
+}
+</script>
+</body>
+</html>

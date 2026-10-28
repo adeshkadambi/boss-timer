@@ -1,0 +1,78 @@
+/* Pixel chrome shared by every window. Theme tokens are set on :root by applyLook(). */
+@import './fonts.css';
+
+:root {
+  /* tokyo-night until settings load, so there's no flash of unstyled color */
+  --bg: #16161e; --panel: #1a1b26; --panel2: #292e42; --line: #414868; --fg: #c0caf5; --dim: #a9b1d6;
+  --accent: #7aa2f7; --accent2: #bb9af7; --warn: #e0af68; --danger: #f7768e; --onAccent: #16161e;
+  --onWarn: #16161e; --shadow: #0c0c10; --ink: #0c0c10;
+  --body: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --pixel: 'Pixelify Sans', ui-monospace, monospace;
+  --digits: 'VT323', ui-monospace, monospace;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background-color: var(--bg);
+  background-image: conic-gradient(color-mix(in srgb, var(--fg) 4%, transparent) 25%, transparent 0 50%, color-mix(in srgb, var(--fg) 4%, transparent) 0 75%, transparent 0);
+  background-size: 4px 4px;
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+input, textarea { user-select: text; -webkit-user-select: text; }
+a { color: inherit; }
+h1, h2, h3 { margin: 0; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px dashed var(--accent); outline-offset: 4px; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Notched pixel borders come from box-shadow. Never use border-radius. */
+.pxbox { box-shadow: 0 -4px 0 0 var(--line), 0 4px 0 0 var(--line), -4px 0 0 0 var(--line), 4px 0 0 0 var(--line), 8px 8px 0 0 var(--shadow); }
+.pxsm { box-shadow: 0 -2px 0 0 var(--line), 0 2px 0 0 var(--line), -2px 0 0 0 var(--line), 2px 0 0 0 var(--line); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; padding: 0 16px; border: 0; cursor: pointer; text-decoration: none; flex: none;
+  font: 500 15px/1 var(--pixel); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--fg); background: var(--panel2);
+  box-shadow: 0 -2px 0 0 var(--line), 0 2px 0 0 var(--line), -2px 0 0 0 var(--line), 2px 0 0 0 var(--line), inset 0 -4px 0 0 rgba(0,0,0,.22);
+}
+.btn:hover { background: color-mix(in srgb, var(--panel2) 82%, var(--fg)); }
+.btn:active { transform: translateY(2px); }
+.btn[disabled] { opacity: .5; cursor: not-allowed; transform: none; }
+.btn.primary {
+  background: var(--accent); color: var(--onAccent);
+  box-shadow: 0 -2px 0 0 var(--accent), 0 2px 0 0 var(--accent), -2px 0 0 0 var(--accent), 2px 0 0 0 var(--accent), inset 0 -4px 0 0 rgba(0,0,0,.25);
+}
+.btn.primary:hover { background: color-mix(in srgb, var(--accent) 86%, #ffffff); }
+.btn.danger { color: var(--danger); }
+.btn.sq { width: 44px; padding: 0; }
+
+.ghost { background: transparent; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 0; text-align: left; }
+
+.lbl { font: 500 14px/1.2 var(--pixel); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+.h2 { font: 700 18px/1 var(--pixel); letter-spacing: .06em; text-transform: uppercase; }
+.h3 { font: 700 17px/1.2 var(--pixel); letter-spacing: .04em; }
+.meta { font-size: 13px; color: var(--dim); }
+.hint { font-size: 12.5px; color: var(--dim); }
+.dot { width: 8px; height: 8px; background: var(--accent); flex: none; }
+.dot.err { background: var(--danger); }
+.dot.off { background: var(--line); }
+
+.scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.scroll::-webkit-scrollbar { width: 8px; }
+.scroll::-webkit-scrollbar-track { background: transparent; }
+.scroll::-webkit-scrollbar-thumb { background: var(--line); }
+
+.field { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
+.field input[type=checkbox], .field input[type=radio] { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); flex: none; }
+
+.mascot { flex: none; display: block; }

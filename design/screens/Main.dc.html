@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Boss Timer — Today</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Pixelify+Sans:wght@400;500;700&amp;family=VT323&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit}
+.pxbox{box-shadow:0 -4px 0 0 var(--line),0 4px 0 0 var(--line),-4px 0 0 0 var(--line),4px 0 0 0 var(--line),8px 8px 0 0 var(--shadow)}
+.pxsm{box-shadow:0 -2px 0 0 var(--line),0 2px 0 0 var(--line),-2px 0 0 0 var(--line),2px 0 0 0 var(--line)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border:0;cursor:pointer;text-decoration:none;font:500 15px/1 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--fg);background:var(--panel2);box-shadow:0 -2px 0 0 var(--line),0 2px 0 0 var(--line),-2px 0 0 0 var(--line),2px 0 0 0 var(--line),inset 0 -4px 0 0 rgba(0,0,0,.22)}
+.btn:hover{background:color-mix(in srgb,var(--panel2) 82%,var(--fg))}
+.btn:active{transform:translateY(2px)}
+.btn.primary{background:var(--accent);color:var(--onAccent);box-shadow:0 -2px 0 0 var(--accent),0 2px 0 0 var(--accent),-2px 0 0 0 var(--accent),2px 0 0 0 var(--accent),inset 0 -4px 0 0 rgba(0,0,0,.25)}
+.btn.primary:hover{background:color-mix(in srgb,var(--accent) 86%,#ffffff)}
+.btn.sq{width:44px;padding:0}
+.ghost{background:transparent;border:0;color:inherit;font:inherit;cursor:pointer;padding:0;text-align:left}
+.row:hover .rowtitle{text-decoration-line:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+.lbl{font:500 14px/1.2 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+:focus-visible{outline:2px dashed var(--accent);outline-offset:4px}
+input{font:inherit;color:inherit}
+.scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.scroll::-webkit-scrollbar{width:8px}
+.scroll::-webkit-scrollbar-track{background:transparent}
+.scroll::-webkit-scrollbar-thumb{background:var(--line)}
+</style>
+</helmet>
+<div style="--bg: {{t.bg}}; --panel: {{t.panel}}; --panel2: {{t.panel2}}; --line: {{t.line}}; --fg: {{t.fg}}; --dim: {{t.dim}}; --accent: {{t.accent}}; --accent2: {{t.accent2}}; --warn: {{t.warn}}; --danger: {{t.danger}}; --onAccent: {{t.onAccent}}; --shadow: {{t.shadow}}; --ink: {{ink}}; --body: {{font}}; height: 100vh; background-color: var(--bg); background-image: conic-gradient(color-mix(in srgb, var(--fg) 4%, transparent) 25%, transparent 0 50%, color-mix(in srgb, var(--fg) 4%, transparent) 0 75%, transparent 0); background-size: 4px 4px; color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.45; padding: 20px 20px 28px; display: flex; flex-direction: column; gap: 20px">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; width: 100%; max-width: 920px; margin: 0 auto">
+<div style="display: flex; align-items: center; gap: 16px">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="40" height="40" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-label="Boss Timer" style="flex: none"><path style="fill: color-mix(in srgb, var(--fg) 14%, var(--panel2))" d="{{m.glass}}"></path><path style="fill: var(--accent)" d="{{m.sand}}"></path><path style="fill: var(--fg)" d="{{m.frame}}"></path><path style="fill: var(--warn)" d="{{m.crown}}"></path><path style="fill: var(--danger)" d="{{m.gem}}"></path><path style="fill: var(--danger)" d="{{m.eye}}"></path><path style="fill: var(--ink)" d="{{m.dark}}"></path></svg>
+<span style="font: 700 20px/1 'Pixelify Sans', ui-monospace, monospace; letter-spacing: .06em">BOSS TIMER</span>
+</div>
+<span aria-hidden="true" style="width: 2px; height: 36px; background: var(--line)"></span>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="lbl">Today</span>
+<h1 style="margin: 0; font: 700 24px/1.1 'Pixelify Sans', ui-monospace, monospace; letter-spacing: .02em">Tue, Oct 27</h1>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; margin-left: auto">
+<span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--dim)"><span style="width: 8px; height: 8px; background: var(--accent)"></span>Synced 2 min ago</span>
+<button class="btn" type="button">Sync</button>
+<a class="btn sq" href="Settings.dc.html" aria-label="Settings"><svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 0h2v1H3z M3 7h2v1H3z M0 3h1v2H0z M7 3h1v2H7z M1 1h1v1H1z M6 1h1v1H6z M1 6h1v1H1z M6 6h1v1H6z M2 1h4v1H2z M1 2h6v1H1z M1 3h2v2H1z M5 3h2v2H5z M1 5h6v1H1z M2 6h4v1H2z"></path></svg></a>
+</div>
+</header>
+
+<main style="flex: 1; min-height: 0; display: flex; flex-wrap: wrap; align-items: stretch; gap: 24px; width: 100%; max-width: 920px; margin: 0 auto">
+
+<section class="pxbox" aria-labelledby="tasks-h" style="flex: 999 1 500px; min-width: 0; min-height: 0; max-height: 100%; background: var(--panel); padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 10px; height: 20px">
+<svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" style="color: var(--accent)"><path d="M0 1h2v2H0z M3 1h5v2H3z M0 5h2v2H0z M3 5h5v2H3z"></path></svg>
+<h2 id="tasks-h" style="margin: 0; font: 700 18px/1 'Pixelify Sans', ui-monospace, monospace; letter-spacing: .06em; text-transform: uppercase">Tasks</h2>
+<span style="font-size: 13px; color: var(--dim)">Todoist · {{openCount}} open</span>
+</div>
+
+<div class="scroll" style="flex: 1; min-height: 0; margin-right: -12px; padding: 2px 12px 2px 2px">
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{tasks}}" as="item" hint-placeholder-count="6">
+<li style="display: flex; flex-direction: column; box-shadow: {{item.ring}}; background: {{item.rowBg}}">
+<div class="row" style="display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 8px 0 4px">
+<button class="ghost" type="button" aria-label="Mark complete" aria-pressed="{{item.done}}" onClick="{{item.toggle}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex: none">
+<span class="pxsm" style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; background: {{item.boxBg}}; color: var(--onAccent)">
+<sc-if value="{{item.done}}" hint-placeholder-val="{{false}}"><svg width="14" height="14" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M1 3h1v2H1z M2 4h1v2H2z M3 5h1v2H3z M4 4h1v2H4z M5 3h1v2H5z M6 2h1v2H6z M7 1h1v2H7z"></path></svg></sc-if>
+</span>
+</button>
+<button class="ghost" type="button" onClick="{{item.pick}}" aria-expanded="{{item.open}}" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0; padding: 4px 0">
+<span class="rowtitle" style="font-size: 15px; font-weight: 500; text-decoration: {{item.deco}}; color: {{item.titleColor}}">{{item.title}}</span>
+<span style="font-size: 12.5px; color: var(--dim)"># {{item.project}}</span>
+</button>
+<sc-if value="{{item.hasFlag}}" hint-placeholder-val="{{true}}">
+<svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" role="img" aria-label="{{item.prioLabel}}" style="color: {{item.flag}}; flex: none"><path d="M1 0h1v8H1z M2 1h5v3H2z"></path></svg>
+</sc-if>
+</div>
+<sc-if value="{{item.open}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 0 12px 12px 52px">
+<label for="dur" class="lbl">Timer</label>
+<div style="display: flex; align-items: center; gap: 10px">
+<button class="btn sq" type="button" aria-label="One minute less" onClick="{{item.dec}}"><svg width="14" height="14" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M1 3h6v2H1z"></path></svg></button>
+<input id="dur" class="pxsm" type="text" inputmode="numeric" value="{{item.dur}}" onChange="{{item.onDur}}" aria-describedby="dur-hint" style="width: 116px; height: 44px; border: 0; background: var(--bg); color: var(--fg); text-align: center; font: 400 36px/1 'VT323', ui-monospace, monospace; letter-spacing: .04em">
+<button class="btn sq" type="button" aria-label="One minute more" onClick="{{item.inc}}"><svg width="14" height="14" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 1h2v6H3z M1 3h2v2H1z M5 3h2v2H5z"></path></svg></button>
+<span id="dur-hint" style="font-size: 12.5px; color: var(--dim)">MM:SS</span>
+</div>
+<label style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; font-size: 14px">
+<input type="checkbox" checked="{{item.lofi}}" onChange="{{item.toggleLofi}}" style="width: 18px; height: 18px; accent-color: var(--accent); margin: 0">
+<svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 1h4v1H3z M3 2h1v4H3z M6 2h1v3H6z M1 5h3v2H1z M4 4h3v2H4z"></path></svg>
+Lofi
+</label>
+<a class="btn primary" href="Timer.dc.html" style="margin-left: auto"><svg width="14" height="14" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M2 1h2v6H2z M4 2h1v4H4z M5 3h1v2H5z"></path></svg>Start</a>
+</div>
+</sc-if>
+</li>
+</sc-for>
+</ul>
+</div>
+</section>
+
+<section class="pxbox" aria-labelledby="cal-h" style="flex: 1 1 320px; min-width: 0; min-height: 0; max-height: 100%; background: var(--panel); padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 10px; height: 20px">
+<svg width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" style="color: var(--accent2)"><path d="M2 0h1v1H2z M5 0h1v1H5z M0 1h8v2H0z M0 3h1v5H0z M7 3h1v5H7z M1 7h6v1H1z M2 4h1v1H2z"></path></svg>
+<h2 id="cal-h" style="margin: 0; font: 700 18px/1 'Pixelify Sans', ui-monospace, monospace; letter-spacing: .06em; text-transform: uppercase">Calendar</h2>
+<span style="font-size: 13px; color: var(--dim)">Google · {{events.length}} events</span>
+</div>
+<div class="scroll" ref="{{setCal}}" aria-label="Today's schedule" style="flex: 1; min-height: 0; margin-right: -12px; padding-right: 12px">
+<div style="display: flex; gap: 10px; padding: 8px 0">
+<div style="position: relative; width: 48px; flex: none; height: {{gridH}}px">
+<sc-for list="{{hours}}" as="h" hint-placeholder-count="11">
+<span style="position: absolute; right: 0; top: {{h.top}}px; font-size: 12px; line-height: 1; color: var(--dim); transform: translateY(-50%)">{{h.label}}</span>
+</sc-for>
+</div>
+<div style="position: relative; flex: 1; min-width: 0; height: {{gridH}}px; background-image: repeating-linear-gradient(180deg, var(--line) 0 2px, transparent 2px 44px, color-mix(in srgb, var(--line) 45%, transparent) 44px 45px, transparent 45px 88px); background-size: 100% 88px">
+<sc-for list="{{events}}" as="e" hint-placeholder-count="6">
+<div style="position: absolute; left: 4px; right: 4px; top: {{e.top}}px; height: {{e.h}}px; background: {{e.bg}}; box-shadow: {{e.sh}}; color: {{e.fg}}; padding: 3px 10px; display: flex; flex-direction: column; gap: 2px; overflow: hidden">
+<span style="font-size: 13.5px; font-weight: 500; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{e.title}}</span>
+<span style="font-size: 12px; line-height: 16px; color: {{e.timeColor}}; white-space: nowrap; font-variant-numeric: tabular-nums">{{e.time}}</span>
+</div>
+</sc-for>
+<div aria-label="Now, 3:44 PM" role="img" style="position: absolute; left: -6px; right: 0; top: {{nowTop}}px; height: 2px; background: var(--danger)">
+<span style="position: absolute; left: 0; top: -4px; width: 6px; height: 10px; background: var(--danger)"></span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["everforest","catppuccin-mocha","catppuccin-latte","nord","tokyo-night","gruvbox","rose-pine","dracula"],"default":"tokyo-night","section":"Look"},"bodyFont":{"editor":"enum","options":["JetBrains Mono","Pixelify Sans"],"default":"JetBrains Mono","section":"Look"},"$preview":{"width":960,"height":640}}'>
+const THEMES = {
+  'everforest': {bg:'#272e33', panel:'#2d353b', panel2:'#3d484d', line:'#56635f', fg:'#d3c6aa', dim:'#9da9a0', accent:'#a7c080', accent2:'#7fbbb3', warn:'#dbbc7f', danger:'#e67e80', onAccent:'#232a2e', shadow:'#1e2326'},
+  'catppuccin-mocha': {bg:'#181825', panel:'#1e1e2e', panel2:'#313244', line:'#585b70', fg:'#cdd6f4', dim:'#a6adc8', accent:'#cba6f7', accent2:'#89b4fa', warn:'#fab387', danger:'#f38ba8', onAccent:'#1e1e2e', shadow:'#11111b'},
+  'catppuccin-latte': {bg:'#e6e9ef', panel:'#eff1f5', panel2:'#dce0e8', line:'#9ca0b0', fg:'#4c4f69', dim:'#5c5f77', accent:'#8839ef', accent2:'#1e66f5', warn:'#df8e1d', danger:'#d20f39', onAccent:'#eff1f5', shadow:'#bcc0cc'},
+  'nord': {bg:'#2e3440', panel:'#3b4252', panel2:'#434c5e', line:'#616e88', fg:'#eceff4', dim:'#c2c9d6', accent:'#88c0d0', accent2:'#81a1c1', warn:'#ebcb8b', danger:'#bf616a', onAccent:'#2e3440', shadow:'#242933'},
+  'tokyo-night': {bg:'#16161e', panel:'#1a1b26', panel2:'#292e42', line:'#414868', fg:'#c0caf5', dim:'#a9b1d6', accent:'#7aa2f7', accent2:'#bb9af7', warn:'#e0af68', danger:'#f7768e', onAccent:'#16161e', shadow:'#0c0c10'},
+  'gruvbox': {bg:'#1d2021', panel:'#282828', panel2:'#3c3836', line:'#665c54', fg:'#ebdbb2', dim:'#bdae93', accent:'#b8bb26', accent2:'#83a598', warn:'#fabd2f', danger:'#fb4934', onAccent:'#1d2021', shadow:'#121414'},
+  'rose-pine': {bg:'#191724', panel:'#1f1d2e', panel2:'#26233a', line:'#524f67', fg:'#e0def4', dim:'#908caa', accent:'#c4a7e7', accent2:'#9ccfd8', warn:'#f6c177', danger:'#eb6f92', onAccent:'#191724', shadow:'#100e18'},
+  'dracula': {bg:'#21222c', panel:'#282a36', panel2:'#343746', line:'#6272a4', fg:'#f8f8f2', dim:'#b6bcd6', accent:'#bd93f9', accent2:'#8be9fd', warn:'#ffb86c', danger:'#ff5555', onAccent:'#21222c', shadow:'#191a21'}
+};
+const FONTS = {
+  'JetBrains Mono': "'JetBrains Mono', ui-monospace, Menlo, monospace",
+  'Pixelify Sans': "'Pixelify Sans', ui-monospace, monospace"
+};
+const TASKS = [
+  {id:1, title:'Write first draft of Q4 planning doc', project:'Work', p:1},
+  {id:2, title:'Review two open pull requests', project:'Work', p:2},
+  {id:3, title:'Reply to Sam about the offsite agenda', project:'Work', p:3},
+  {id:4, title:'Read chapter 4 of the systems design book', project:'Learning', p:4},
+  {id:5, title:'Book dentist appointment', project:'Personal', p:4},
+  {id:6, title:'Morning run', project:'Personal', p:4}
+];
+const EVENTS = [
+  {title:'Standup', start:9.5, end:9.75},
+  {title:'1:1 with manager', start:11, end:11.5},
+  {title:'Lunch', start:12.5, end:13.25},
+  {title:'Design review', start:14, end:15},
+  {title:'Deep work block', start:16, end:17.5},
+  {title:'Gym', start:18, end:19}
+];
+const DAY_START = 7, DAY_END = 22, HOUR = 88, NOW = 15 + 44/60;
+function fmtClock(h){
+  const hr = Math.floor(h), m = Math.round((h - hr) * 60);
+  const h12 = ((hr + 11) % 12) + 1;
+  return h12 + ':' + String(m).padStart(2,'0');
+}
+function parseDur(str){
+  const m = String(str).trim().match(/^(\d{1,3})(?::(\d{1,2}))?$/);
+  if (!m) return null;
+  return Number(m[1]) * 60 + Number(m[2] || 0);
+}
+function fmtDur(sec){
+  return String(Math.floor(sec / 60)).padStart(2,'0') + ':' + String(sec % 60).padStart(2,'0');
+}
+const MASCOT = ['....K..KK..K....','....KKKGGKKK....','....KKKKKKKK....','..FFFFFFFFFFFF..','..F.gdggggdg.F..','..F.ggdggdgg.F..','..F..geggeg..F..','..F...gddg...F..','..F....gg....F..','..F...gggg...F..','..F..gggggg..F..','..F.gggggggg.F..','..F.gggggggg.F..','..FFFFFFFFFFFF..','...FF......FF...','................'];
+function mascot(f, mood){
+  const rows = MASCOT.map((r) => r.split(''));
+  if (mood === 'alarm') { rows[6] = '..F..eeggee..F..'.split(''); rows[7] = '..F...dddd...F..'.split(''); }
+  const cells = (y) => { const xs = []; rows[y].forEach((ch, x) => { if (ch === 'g') xs.push(x); }); return xs.sort((a, b) => Math.abs(a - 7.5) - Math.abs(b - 7.5)); };
+  const fill = (ys, n) => { ys.forEach((y) => cells(y).forEach((x) => { if (n > 0) { rows[y][x] = 's'; n--; } })); };
+  const up = [7, 6, 5, 4], low = [12, 11, 10, 9];
+  const cap = (ys) => ys.reduce((a, y) => a + cells(y).length, 0);
+  const upCap = cap(up), lowCap = cap(low);
+  fill(up, Math.round(f * upCap));
+  fill(low, Math.round((1 - f) * lowCap));
+  if (mood === 'run' && f > 0 && f < 1) rows[8][7] = 's';
+  const KEY = { F: 'frame', g: 'glass', s: 'sand', K: 'crown', G: 'gem', e: 'eye', d: 'dark' };
+  const out = { frame: '', glass: '', sand: '', crown: '', gem: '', eye: '', dark: '' };
+  rows.forEach((r, y) => r.forEach((ch, x) => { const k = KEY[ch]; if (k) out[k] += 'M' + x + ' ' + y + 'h1v1h-1z'; }));
+  return out;
+}
+class Component extends DCLogic {
+  state = { sel: 1, done: { 6: true }, dur: '25:00', lofi: true };
+  setCal = (el) => { this.cal = el; };
+  componentDidMount(){
+    if (this.cal) this.cal.scrollTop = Math.max(0, (NOW - DAY_START) * HOUR - 160);
+  }
+  step(delta){
+    const cur = parseDur(this.state.dur);
+    const base = cur == null ? 1500 : cur;
+    const next = Math.min(180 * 60, Math.max(60, base + delta));
+    this.setState({ dur: fmtDur(next) });
+  }
+  renderVals(){
+    const t = THEMES[this.props.theme] || THEMES['tokyo-night'];
+    const font = FONTS[this.props.bodyFont] || FONTS['JetBrains Mono'];
+    const s = this.state;
+    const PRIO = {1: t.danger, 2: t.warn, 3: t.accent2};
+    const ring = 'inset 0 0 0 2px ' + t.accent;
+    const tasks = TASKS.map((x) => {
+      const done = !!s.done[x.id];
+      const open = s.sel === x.id && !done;
+      return {
+        ...x, done, open,
+        hasFlag: !!PRIO[x.p] && !done,
+        flag: PRIO[x.p] || 'transparent',
+        prioLabel: 'Priority ' + x.p,
+        deco: done ? 'line-through' : 'none',
+        titleColor: done ? t.dim : t.fg,
+        boxBg: done ? t.accent : t.bg,
+        ring: open ? ring : 'none',
+        rowBg: open ? t.bg : 'transparent',
+        dur: s.dur,
+        lofi: s.lofi,
+        toggle: () => this.setState({ done: { ...s.done, [x.id]: !done } }),
+        pick: () => this.setState({ sel: s.sel === x.id ? null : x.id }),
+        dec: () => this.step(-60),
+        inc: () => this.step(60),
+        onDur: (e) => this.setState({ dur: e.target.value }),
+        toggleLofi: () => this.setState({ lofi: !s.lofi })
+      };
+    });
+    const hours = [];
+    for (let h = DAY_START; h <= DAY_END; h++) {
+      const h12 = ((h + 11) % 12) + 1;
+      hours.push({ label: h12 + (h < 12 ? ' AM' : ' PM'), top: (h - DAY_START) * HOUR });
+    }
+    const events = EVENTS.map((e) => {
+      const past = e.end <= NOW;
+      const top = (e.start - DAY_START) * HOUR + 2;
+      const raw = (e.end - e.start) * HOUR - 4;
+      const h = Math.max(40, raw);
+      const c = past ? t.line : t.accent2;
+      return {
+        title: e.title,
+        time: fmtClock(e.start) + '–' + fmtClock(e.end) + (e.end >= 12 ? ' PM' : ' AM'),
+        top, h,
+        bg: past ? t.panel : 'color-mix(in srgb, ' + t.accent2 + ' 24%, ' + t.panel + ')',
+        sh: 'inset 0 0 0 2px ' + c,
+        fg: past ? t.dim : t.fg,
+        timeColor: past ? t.dim : t.fg
+      };
+    });
+    return {
+      t, font, tasks, hours, events,
+      setCal: this.setCal,
+      gridH: (DAY_END - DAY_START) * HOUR + 2,
+      m: mascot(0.6, 'idle'),
+      ink: this.props.theme === 'catppuccin-latte' ? '#232634' : t.shadow,
+      openCount: tasks.filter((x) => !x.done).length,
+      nowTop: Math.round((NOW - DAY_START) * HOUR)
+    };
+  }
+}
+</script>
+</body>
+</html>

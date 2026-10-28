@@ -1,0 +1,89 @@
+{
+  "_note": "Milestone 1 only. Replaced by live Todoist (M3) and Google Calendar (M4) data. Never ship this.",
+  "todoist": {
+    "connected": true,
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Write first draft of Q4 planning doc",
+        "project": "Work",
+        "priority": 4
+      },
+      {
+        "id": "2",
+        "title": "Review two open pull requests",
+        "project": "Work",
+        "priority": 3
+      },
+      {
+        "id": "3",
+        "title": "Reply to Sam about the offsite agenda",
+        "project": "Work",
+        "priority": 2
+      },
+      {
+        "id": "4",
+        "title": "Read chapter 4 of the systems design book",
+        "project": "Learning",
+        "priority": 1
+      },
+      {
+        "id": "5",
+        "title": "Book dentist appointment",
+        "project": "Personal",
+        "priority": 1
+      },
+      {
+        "id": "6",
+        "title": "Morning run",
+        "project": "Personal",
+        "priority": 1
+      }
+    ]
+  },
+  "google": {
+    "connected": true,
+    "all_day": [
+      {
+        "title": "Planning week"
+      }
+    ],
+    "events": [
+      {
+        "title": "Standup",
+        "start": "09:30",
+        "end": "09:45"
+      },
+      {
+        "title": "1:1 with manager",
+        "start": "11:00",
+        "end": "11:30"
+      },
+      {
+        "title": "Lunch",
+        "start": "12:30",
+        "end": "13:15"
+      },
+      {
+        "title": "Design review",
+        "start": "14:00",
+        "end": "15:00"
+      },
+      {
+        "title": "Coffee chat",
+        "start": "14:30",
+        "end": "15:00"
+      },
+      {
+        "title": "Deep work block",
+        "start": "16:00",
+        "end": "17:30"
+      },
+      {
+        "title": "Gym",
+        "start": "18:00",
+        "end": "19:00"
+      }
+    ]
+  }
+}
