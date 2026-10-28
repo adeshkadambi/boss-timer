@@ -8,8 +8,6 @@
 .top { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; width: 100%; max-width: 920px; margin: 0 auto; }
 .top-left { display: flex; align-items: center; gap: 16px; }
 .top-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
-.brand { display: flex; align-items: center; gap: 10px; }
-.wordmark { font: 700 20px/1 var(--pixel); letter-spacing: .06em; }
 .divider { width: 2px; height: 36px; background: var(--line); }
 .date { display: flex; flex-direction: column; gap: 2px; }
 .sync { display: inline-flex; align-items: center; gap: 8px; }

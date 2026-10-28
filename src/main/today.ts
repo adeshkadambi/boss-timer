@@ -146,7 +146,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
 <div class="today">
   <header class="top">
     <div class="top-left">
-      <div class="brand">${mascotSvg(40, 0.6, 'idle', 'Boss Timer')}<span class="wordmark">BOSS TIMER</span></div>
+      ${mascotSvg(40, 0.6, 'idle', 'Boss Timer')}
       <span class="divider" aria-hidden="true"></span>
       <div class="date"><span class="lbl">Today</span><h1 class="page-title" id="today-date"></h1></div>
     </div>
