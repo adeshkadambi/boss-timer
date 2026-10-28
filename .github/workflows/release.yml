@@ -1,7 +1,13 @@
 name: Release
 
-# Builds macOS (.dmg, Apple Silicon + Intel) and Ubuntu (.deb, .AppImage, .rpm) bundles
-# and attaches them to a draft GitHub release. Push a tag like v0.1.0 to run it.
+# Push a tag like v0.1.0 to build the installers and attach them to a GitHub release:
+#   macOS: universal .dmg (Apple Silicon + Intel)
+#   Ubuntu: .deb and .AppImage
+#
+# The Google client is built in from the BOSS_TIMER_GOOGLE_CLIENT_ID / _SECRET repo secrets,
+# so the installed app only needs "Connect Google Calendar". Releases are published right away:
+# fine for a private repo. If the repo ever goes public, set releaseDraft back to true, since
+# anyone could download a build and extract the client secret from it.
 on:
   push:
     tags: ['v*']
@@ -17,11 +23,9 @@ jobs:
       matrix:
         include:
           - platform: macos-latest
-            args: --target aarch64-apple-darwin
-          - platform: macos-latest
-            args: --target x86_64-apple-darwin
+            args: --target universal-apple-darwin --bundles dmg
           - platform: ubuntu-22.04
-            args: ''
+            args: --bundles deb,appimage
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -51,14 +55,22 @@ jobs:
       - name: Test
         run: cargo test --manifest-path src-tauri/Cargo.toml
 
+      - name: Check the Google client secrets are set
+        env:
+          ID: ${{ secrets.BOSS_TIMER_GOOGLE_CLIENT_ID }}
+          SECRET: ${{ secrets.BOSS_TIMER_GOOGLE_CLIENT_SECRET }}
+        run: |
+          if [ -z "$ID" ] || [ -z "$SECRET" ]; then
+            echo "::warning::BOSS_TIMER_GOOGLE_CLIENT_ID/SECRET aren't set; this build will ask for a Google client in Accounts."
+          fi
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Your Google "Desktop app" OAuth client, added as repo secrets. Built into the app.
           BOSS_TIMER_GOOGLE_CLIENT_ID: ${{ secrets.BOSS_TIMER_GOOGLE_CLIENT_ID }}
           BOSS_TIMER_GOOGLE_CLIENT_SECRET: ${{ secrets.BOSS_TIMER_GOOGLE_CLIENT_SECRET }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Boss Timer ${{ github.ref_name }}
-          releaseDraft: true
+          releaseDraft: false
           args: ${{ matrix.args }}

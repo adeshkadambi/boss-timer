@@ -4,6 +4,34 @@ A minimal pixel-art focus timer for macOS and Linux. It shows today's Google Cal
 
 `design/screens/` holds the original design canvas files, kept as the visual reference.
 
+## Install
+
+Download the latest build from this repo's **Releases** page.
+
+**macOS** (the `universal.dmg`): open the `.dmg` and drag Boss Timer to Applications. The app isn't signed with an Apple Developer ID, so the first launch is blocked: open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to Boss Timer. You only do this once per version.
+
+**Ubuntu** (`.deb` or `.AppImage`):
+
+```sh
+sudo apt install ./<downloaded file>.deb       # pulls in its dependencies; then launch "Boss Timer"
+# or run the AppImage directly:
+chmod +x ./<downloaded file>.AppImage && ./<downloaded file>.AppImage
+```
+
+**First run:** Settings (gear) → Accounts → paste your Todoist API token, then click **Connect Google Calendar** and sign in. That's it.
+
+The first time the app reads each saved token, macOS may ask for keychain access; click **Always Allow**. After installing a newer version it asks once more, since macOS ties that permission to the exact build.
+
+### Making a release
+
+1. One time: add your Google client as repo secrets (values from `src-tauri/google-client.json`):
+   `BOSS_TIMER_GOOGLE_CLIENT_ID` and `BOSS_TIMER_GOOGLE_CLIENT_SECRET` (repo → Settings → Secrets and variables → Actions).
+2. Bump `version` in `src-tauri/tauri.conf.json` and `package.json`, commit, then tag and push:
+   ```sh
+   git tag v0.1.0 && git push origin v0.1.0
+   ```
+3. GitHub Actions builds the universal `.dmg` on macOS and the `.deb` + `.AppImage` on Ubuntu, and attaches them to the release (about 15 minutes).
+
 ## Run it
 
 Needs Node 22.18+ and Rust (via [rustup](https://rustup.rs)).
@@ -26,7 +54,7 @@ sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
 
 `libasound2-dev` is for the alarm sound and `libdbus-1-dev` is for the Secret Service keychain. macOS needs the Xcode Command Line Tools.
 
-Linux bundles: `.deb`, `.AppImage`, `.rpm`. macOS: `.app`, `.dmg`. A `.dmg` has to be built on a Mac; the GitHub Actions workflow in `.github/workflows/release.yml` builds both platforms when you push a `v*` tag.
+Linux bundles: `.deb`, `.AppImage`, `.rpm`. macOS: `.app`, `.dmg`. A `.dmg` has to be built on a Mac; for releases, use the GitHub Actions workflow (see Making a release).
 
 ## Connect your accounts
 
@@ -56,7 +84,7 @@ You create one Google OAuth client and build it into the app. After that, each m
 
 Each machine signs in separately and keeps its own sign-in in its keychain.
 
-For the GitHub Actions release build, add the client as repo secrets named `BOSS_TIMER_GOOGLE_CLIENT_ID` and `BOSS_TIMER_GOOGLE_CLIENT_SECRET` instead of the file.
+For release builds made by GitHub Actions, the client comes from repo secrets instead (see Making a release).
 
 A desktop client secret isn't really confidential (Google says so for installed apps), but it stays out of git anyway. To use a different client without rebuilding, Accounts still has a form for pasting one; it overrides the built-in client until you click **Use built-in client**.
 
@@ -85,13 +113,12 @@ In the timer window: **Space** pauses or resumes, **1–5** picks how much was o
 
 | What | Where |
 |---|---|
-| Settings | `settings.json` in the app config dir (`~/Library/Application Support/dev.bosstimer.app/` on macOS, `~/.config/dev.bosstimer.app/` on Linux) |
-| Sessions | `sessions.sqlite3` in the app data dir (same folder on macOS, `~/.local/share/dev.bosstimer.app/` on Linux) |
-| Tokens and secrets | OS keychain, service `dev.bosstimer.app` (dev builds: `dev-secrets.json` in the config dir) |
+| Settings | `settings.json` in the app config dir (`~/Library/Application Support/io.github.adeshkadambi.bosstimer/` on macOS, `~/.config/io.github.adeshkadambi.bosstimer/` on Linux) |
+| Sessions | `sessions.sqlite3` in the app data dir (same folder on macOS, `~/.local/share/io.github.adeshkadambi.bosstimer/` on Linux) |
+| Tokens and secrets | OS keychain, service `io.github.adeshkadambi.bosstimer` (dev builds: `dev-secrets.json` in the config dir) |
 
 Everything is per machine: your MacBook and Ubuntu desktop each have their own settings, sign-ins and session history. Reports on one don't include sessions from the other (syncing sessions is out of scope for v1).
 
-The bundle identifier `dev.bosstimer.app` is a placeholder. Change it in `src-tauri/tauri.conf.json` to a domain you own before distributing.
 
 ## Security notes
 

@@ -15,7 +15,7 @@ use std::{
     sync::{LazyLock, Mutex, OnceLock},
 };
 
-const SERVICE: &str = "dev.bosstimer.app";
+const SERVICE: &str = "io.github.adeshkadambi.bosstimer";
 
 pub const TODOIST_TOKEN: &str = "todoist-token";
 pub const GOOGLE_REFRESH: &str = "google-refresh-token";
