@@ -7,37 +7,50 @@
         "id": "1",
         "title": "Write first draft of Q4 planning doc",
         "project": "Work",
-        "priority": 4
+        "priority": 4,
+        "labels": [
+          "deep-work"
+        ]
       },
       {
         "id": "2",
         "title": "Review two open pull requests",
         "project": "Work",
-        "priority": 3
+        "priority": 3,
+        "labels": []
       },
       {
         "id": "3",
         "title": "Reply to Sam about the offsite agenda",
         "project": "Work",
-        "priority": 2
+        "priority": 2,
+        "labels": [
+          "quick"
+        ]
       },
       {
         "id": "4",
         "title": "Read chapter 4 of the systems design book",
         "project": "Learning",
-        "priority": 1
+        "priority": 1,
+        "labels": []
       },
       {
         "id": "5",
         "title": "Book dentist appointment",
         "project": "Personal",
-        "priority": 1
+        "priority": 1,
+        "labels": [
+          "errand",
+          "phone"
+        ]
       },
       {
         "id": "6",
         "title": "Morning run",
         "project": "Personal",
-        "priority": 1
+        "priority": 1,
+        "labels": []
       }
     ]
   },

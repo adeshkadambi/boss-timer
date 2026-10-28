@@ -61,6 +61,7 @@ export interface ApiTask {
   title: string;
   project: string;
   priority: 1 | 2 | 3 | 4;
+  labels: string[];
   due_date: string | null;
   due_time: string | null;
   overdue: boolean;

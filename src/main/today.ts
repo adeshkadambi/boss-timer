@@ -198,12 +198,18 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
 
   const errLine = (msg: string | null) => (msg ? `<p class="hint err src-err" role="status">${esc(msg)}</p>` : '');
 
-  function dueLabel(t: Task): string {
-    if (t.overdue) return ' · Overdue';
-    if (!t.due_time) return '';
+  function dueLabel(t: Task): string | null {
+    if (t.overdue) return 'Overdue';
+    if (!t.due_time) return null;
     const [h, m] = t.due_time.split(':').map(Number);
     const c = clock(h * 60 + m);
-    return ` · ${c.hm} ${c.ampm}`;
+    return `${c.hm} ${c.ampm}`;
+  }
+
+  /** "# Project · @label · @label · 3:00 PM" */
+  function metaLine(t: Task): string {
+    const parts = [`# ${t.project}`, ...t.labels.map((l) => `@${l}`), dueLabel(t)].filter(Boolean) as string[];
+    return parts.map(esc).join(' · ');
   }
 
   function taskRow(t: Task): string {
@@ -215,7 +221,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
   <div class="row">
     <button class="ghost check" type="button" data-act="toggle" data-focus-key="toggle-${id}" aria-pressed="${done}" aria-label="${done ? 'Completed' : 'Mark complete'}: ${esc(t.title)}"><span class="pxsm box">${done ? icon('check', 14) : ''}</span></button>
     <button class="ghost pick" type="button" data-act="pick" data-focus-key="pick-${id}" aria-expanded="${open}"${done ? ' disabled' : ''}>
-      <span class="rowtitle">${esc(t.title)}</span><span class="proj"># ${esc(t.project)}${dueLabel(t)}</span>
+      <span class="rowtitle">${esc(t.title)}</span><span class="proj">${metaLine(t)}</span>
     </button>
     ${flag ? `<svg class="flag" width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" role="img" aria-label="${flag.label}" style="color:${flag.color}"><path d="M1 0h1v8H1z M2 1h5v3H2z"></path></svg>` : ''}
   </div>

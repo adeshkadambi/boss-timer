@@ -34,6 +34,8 @@ pub struct Task {
     pub project: String,
     /// API priority: 4 = highest (p1), 1 = normal.
     pub priority: u8,
+    /// Label names, as in Todoist.
+    pub labels: Vec<String>,
     /// Local due date, YYYY-MM-DD.
     pub due_date: Option<String>,
     /// Local due time, HH:MM, when the task has one.
@@ -60,6 +62,9 @@ struct ApiTask {
     priority: u8,
     #[serde(default)]
     child_order: i64,
+    /// v1 lists label names directly on the task.
+    #[serde(default)]
+    labels: Vec<String>,
     due: Option<ApiDue>,
 }
 fn one() -> u8 {
@@ -216,6 +221,7 @@ fn to_task(t: ApiTask, projects: &HashMap<String, String>, today: NaiveDate) -> 
         title: t.content,
         id: t.id,
         priority: t.priority.clamp(1, 4),
+        labels: t.labels,
         due_date: due.map(|(d, _)| d.format("%Y-%m-%d").to_string()),
         due_time: due.and_then(|(_, dt)| dt).map(|dt| dt.format("%H:%M").to_string()),
         overdue: due.is_some_and(|(d, _)| d < today),
@@ -251,6 +257,7 @@ mod tests {
             project_id: "p1".into(),
             priority: prio,
             child_order: order,
+            labels: vec![],
             due: due.map(|d| ApiDue { date: d.into(), datetime: None }),
         }
     }
@@ -258,7 +265,7 @@ mod tests {
     #[test]
     fn parses_v1_task_json() {
         let json = r#"{"results":[{"id":"6X7","content":"Write doc","project_id":"220","priority":4,
-            "child_order":3,"day_order":-1,"checked":false,
+            "child_order":3,"day_order":-1,"checked":false,"labels":["errand","deep-work"],
             "due":{"date":"2026-10-27T15:00:00","timezone":null,"string":"today 3pm","lang":"en","is_recurring":false}}],
             "next_cursor":null}"#;
         let page: Page<ApiTask> = serde_json::from_str(json).unwrap();
@@ -267,6 +274,7 @@ mod tests {
         assert_eq!(t.title, "Write doc");
         assert_eq!(t.project, "Work");
         assert_eq!(t.priority, 4);
+        assert_eq!(t.labels, ["errand", "deep-work"]);
         assert_eq!(t.due_date.as_deref(), Some("2026-10-27"));
         assert_eq!(t.due_time.as_deref(), Some("15:00"));
         assert!(!t.overdue);

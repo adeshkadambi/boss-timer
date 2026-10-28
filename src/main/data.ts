@@ -17,7 +17,7 @@ export async function loadToday(): Promise<TodayData> {
         connected: true,
         unauthorized: false,
         error: null,
-        tasks: mock.todoist.tasks.map((t) => ({ ...t, priority: t.priority as 1 | 2 | 3 | 4, due_date: null, due_time: null, overdue: false })),
+        tasks: mock.todoist.tasks.map((t) => ({ ...t, priority: t.priority as 1 | 2 | 3 | 4, labels: t.labels, due_date: null, due_time: null, overdue: false })),
       },
       google: {
         configured: true,
