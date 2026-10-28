@@ -151,9 +151,11 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
       <div class="date"><span class="lbl">Today</span><h1 class="page-title" id="today-date"></h1></div>
     </div>
     <div class="top-right">
-      <span class="sync meta" id="sync-status" role="status"></span>
-      <button class="btn" type="button" data-act="sync">Sync</button>
-      <button class="btn sq" type="button" data-act="settings" aria-label="Settings">${icon('gear')}</button>
+      <div class="top-actions">
+        <button class="btn sm" type="button" data-act="sync">Sync</button>
+        <button class="btn sm sq" type="button" data-act="settings" aria-label="Settings">${icon('gear', 14)}</button>
+      </div>
+      <span class="sync" id="sync-status" role="status"></span>
     </div>
   </header>
   <main class="panels">
