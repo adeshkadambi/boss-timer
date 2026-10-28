@@ -1,6 +1,6 @@
 [package]
 name = "boss-timer"
-version = "0.1.0"
+version = "0.1.1"
 description = "A minimal pixel-art desktop focus timer"
 edition = "2021"
 rust-version = "1.80"
