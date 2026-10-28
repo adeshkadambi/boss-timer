@@ -55,9 +55,6 @@ h1, h2, h3 { margin: 0; }
 .btn.primary:hover { background: color-mix(in srgb, var(--accent) 86%, #ffffff); }
 .btn.danger { color: var(--danger); }
 .btn.sq { width: 44px; padding: 0; }
-/* Compact buttons for dense headers. */
-.btn.sm { height: 28px; padding: 0 12px; font-size: 13px; box-shadow: 0 -2px 0 0 var(--line), 0 2px 0 0 var(--line), -2px 0 0 0 var(--line), 2px 0 0 0 var(--line), inset 0 -3px 0 0 rgba(0,0,0,.22); }
-.btn.sm.sq { width: 28px; padding: 0; }
 
 .ghost { background: transparent; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 0; text-align: left; }
 
