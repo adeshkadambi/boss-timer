@@ -13,12 +13,17 @@ pub const CHANGED_EVENT: &str = "settings://changed";
 /// Saves a partial update, applies it to the running app, and broadcasts it to every window.
 pub fn update_and_emit(app: &tauri::AppHandle, patch: serde_json::Value) -> Result<Settings, String> {
     use tauri::{Emitter, Manager};
+    let was_floating = app.state::<SettingsStore>().get().floating_timer;
     let next = app.state::<SettingsStore>().update(patch)?;
     app.state::<crate::audio::Audio>().set_volume(next.volume);
     if let Some(w) = app.get_webview_window(crate::timer::WINDOW) {
         let _ = w.set_always_on_top(next.always_on_top);
     }
     let _ = app.emit(CHANGED_EVENT, &next);
+    // Switched where the timer shows while one is up: move it now.
+    if next.floating_timer != was_floating && app.state::<crate::timer::Timer>().phase() != crate::engine::Phase::Idle {
+        crate::timer::show_timer(app);
+    }
     Ok(next)
 }
 
@@ -41,6 +46,9 @@ pub struct Settings {
     /// "chime" | "bell8" | "beep"
     pub alarm_sound: String,
     pub ask_rating: bool,
+    /// Show the timer in its own floating window. Off: inside Today in the main window.
+    pub floating_timer: bool,
+    /// Keep the floating timer above other windows.
     pub always_on_top: bool,
 
     /// Alarm volume, 0–100.
@@ -72,6 +80,7 @@ impl Default for Settings {
             alarm_mode: "both".into(),
             alarm_sound: "chime".into(),
             ask_rating: true,
+            floating_timer: true,
             always_on_top: true,
             volume: 60,
             todoist_scope: "overdue".into(),

@@ -1,0 +1,51 @@
+/* Timer widget (design/screens/Timer.dc.html and TimerStates.dc.html). Scoped to .tw so it can
+   sit inside the main window too. */
+
+.tw { display: flex; flex-direction: column; gap: 10px; }
+
+.tw .trow { display: flex; align-items: center; gap: 4px; min-height: 44px; }
+.tw .grip { color: var(--dim); flex: none; cursor: grab; display: flex; }
+.tw .trow .mascot { margin-left: 2px; }
+.tw .ttitle { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-left: 6px; cursor: default; }
+.tw .tname { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tw .tstatus { font-size: 12px; color: var(--dim); }
+.tw .tstatus.warn { color: var(--warn); }
+
+.tw .ibtn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--dim); cursor: pointer; flex: none; padding: 0; }
+.tw .ibtn:hover { background: var(--panel2); color: var(--fg); }
+.tw .bell { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--danger); flex: none; }
+
+/* The bar: segment track, a fill clipped from the right as time runs down, two text layers. */
+.tw .bar { position: relative; height: 52px; background: repeating-linear-gradient(90deg, var(--panel2) 0 14px, var(--panel) 14px 16px); }
+.tw .digits { font: 400 44px/1 var(--digits); letter-spacing: .06em; display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+.tw .bar > .digits { position: absolute; inset: 0; color: var(--fg); }
+.tw .fill { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, var(--fillc) 0 14px, color-mix(in srgb, var(--fillc) 70%, var(--panel)) 14px 16px); }
+.tw .fill .digits { height: 52px; color: var(--onfill); }
+.tw .bar.run { --fillc: var(--accent); --onfill: var(--onAccent); }
+.tw .bar.paused { --fillc: var(--dim); --onfill: var(--panel); }
+.tw .bar.last { --fillc: var(--warn); --onfill: var(--onWarn); }
+.tw .bar.last .fill { background: var(--warn); }
+.tw .bar.last > .digits { color: var(--warn); }
+.tw .bar.up > .digits { color: var(--danger); }
+.tw .bar.done > .digits { color: var(--dim); }
+
+.tw .q { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+.tw .q-title { font: 600 16px/1.25 var(--pixel); margin: 0; }
+.tw .cells { display: flex; gap: 6px; }
+.tw .cell { flex: 1; height: 36px; border: 0; padding: 0; cursor: pointer; background: var(--panel2); box-shadow: inset 0 0 0 2px var(--line); }
+.tw .cell.on { background: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.tw .cell:hover:not(.on) { box-shadow: inset 0 0 0 2px var(--fg); }
+.tw .scale { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--dim); }
+.tw .scale .picked { color: var(--fg); font-weight: 500; }
+.tw .qbtns { display: flex; gap: 10px; }
+.tw .qbtns .primary { flex: 1; }
+.tw .sub { font-size: 13px; color: var(--dim); margin: 0; }
+.tw .sub.err { color: var(--danger); }
+
+@keyframes pxshake { 0%{transform:translate(0,0)} 15%{transform:translate(-8px,0)} 30%{transform:translate(8px,-4px)} 45%{transform:translate(-8px,4px)} 60%{transform:translate(4px,0)} 75%{transform:translate(-4px,0)} 100%{transform:translate(0,0)} }
+@keyframes pxring { 0%{transform:rotate(0)} 25%{transform:rotate(-18deg)} 50%{transform:rotate(0)} 75%{transform:rotate(18deg)} 100%{transform:rotate(0)} }
+@keyframes pxblink { 0%{opacity:1} 50%{opacity:0} }
+.tw.shake { animation: pxshake .42s steps(1, end) 6; }
+.tw .ring { animation: pxring .3s steps(1, end) 12; transform-origin: 50% 0; }
+.tw .blink { animation: pxblink 1s steps(1, end) infinite; }
+@media (prefers-reduced-motion: reduce) { .tw.shake, .tw .ring, .tw .blink { animation: none; } }

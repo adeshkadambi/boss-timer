@@ -1,5 +1,5 @@
-//! The timer at runtime: wraps the engine with the session log, audio, the floating window and
-//! the tray. The UI only displays `timer://tick` and `timer://phase` and sends commands.
+//! The timer at runtime: wraps the engine with the session log, audio, where the timer shows
+//! (the floating window, or inline in the main window) and the tray. The UI only displays `timer://tick` and `timer://phase` and sends commands.
 
 use crate::{
     audio::Audio,
@@ -62,7 +62,7 @@ impl Timer {
                     s.timed_secs,
                     s.id,
                 );
-                show_window(app);
+                show_timer(app);
                 broadcast(app, &self.view());
             }
             Ok(None) => {}
@@ -77,7 +77,23 @@ fn broadcast(app: &AppHandle, view: &TimerView) {
     tray::update(app, view.phase);
 }
 
-pub fn show_window(app: &AppHandle) {
+/// Brings up the timer wherever the settings put it.
+pub fn show_timer(app: &AppHandle) {
+    if app.state::<SettingsStore>().get().floating_timer {
+        show_floating(app);
+    } else {
+        hide_floating(app);
+        show_main(app);
+    }
+}
+
+fn hide_floating(app: &AppHandle) {
+    if let Some(w) = app.get_webview_window(WINDOW) {
+        let _ = w.hide();
+    }
+}
+
+fn show_floating(app: &AppHandle) {
     if let Some(w) = app.get_webview_window(WINDOW) {
         let _ = w.show();
         return;
@@ -117,7 +133,7 @@ fn enter_report(app: &AppHandle, natural: bool) {
     if !s.ask_rating {
         log_session(app, &timer, Some(5));
     }
-    show_window(app);
+    show_timer(app);
     broadcast(app, &timer.view());
 }
 
@@ -205,7 +221,7 @@ pub async fn start_timer(app: AppHandle, task: TaskRef, secs: u64, replace: bool
         e.start(task, secs, id, now, SystemTime::now());
     }
     let _ = settings::update_and_emit(&app, serde_json::json!({ "last_duration_secs": secs }));
-    show_window(&app);
+    show_timer(&app);
     broadcast(&app, &timer.view());
     Ok(StartResult { started: true, active_title: None })
 }
@@ -315,7 +331,7 @@ pub async fn again(app: AppHandle) -> Result<StartResult, String> {
     start_timer(app, task, secs, true).await
 }
 
-/// "Back to today": hide the timer and bring up the main window.
+/// "Back to today" / "Done": put the timer away and bring up the main window.
 #[tauri::command]
 pub fn close_timer(app: AppHandle) {
     let timer = app.state::<Timer>();
@@ -326,9 +342,7 @@ pub fn close_timer(app: AppHandle) {
         }
         e.close(Instant::now(), SystemTime::now());
     }
-    if let Some(w) = app.get_webview_window(WINDOW) {
-        let _ = w.hide();
-    }
+    hide_floating(&app);
     show_main(&app);
     broadcast(&app, &timer.view());
 }

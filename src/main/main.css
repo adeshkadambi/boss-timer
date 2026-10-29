@@ -22,7 +22,7 @@
 .split::after { content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 40px; transform: translate(-50%, -50%); background: var(--line); }
 .split:hover::after, .split.dragging::after, .split:focus-visible::after { background: var(--accent); }
 .split:focus-visible { outline-offset: -4px; }
-.today:has(.split.dragging) { cursor: col-resize; }
+.today.resizing, .today.resizing * { cursor: col-resize !important; }
 .panel-head { display: flex; align-items: center; gap: 10px; height: 20px; flex: none; }
 .panel-head svg { flex: none; }
 .panel-head .h2 { flex: none; }
@@ -48,6 +48,13 @@
 .task.done .rowtitle { text-decoration: line-through; color: var(--dim); }
 .task .proj { font-size: 12.5px; color: var(--dim); }
 .task .flag { flex: none; }
+
+/* Inline timer (floating timer turned off): under its task row, or on its own at the top. */
+.task.timing { background: var(--bg); box-shadow: inset 0 0 0 2px var(--accent); }
+.task.timing.alarm, .inline-timer.solo.alarm { box-shadow: inset 0 0 0 2px var(--danger); }
+.inline-timer { padding: 0 12px 12px 52px; }
+.inline-timer.solo { background: var(--bg); box-shadow: inset 0 0 0 2px var(--accent); padding: 8px 12px 12px; margin-bottom: 10px; }
+.panel.tasks .panel-body { overflow-x: hidden; } /* the alarm shake moves the timer sideways */
 
 .timer-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 0 12px 12px 52px; }
 .dur { display: flex; align-items: center; gap: 10px; }

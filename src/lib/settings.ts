@@ -17,6 +17,9 @@ export interface Settings {
   alarm_mode: AlarmMode;
   alarm_sound: AlarmSound;
   ask_rating: boolean;
+  /** Show the timer in its own floating window. Off: inside Today in the main window. */
+  floating_timer: boolean;
+  /** Keep the floating timer above other windows. */
   always_on_top: boolean;
   /** Alarm volume, 0–100. */
   volume: number;
@@ -36,6 +39,7 @@ export const DEFAULT_SETTINGS: Settings = {
   alarm_mode: 'both',
   alarm_sound: 'chime',
   ask_rating: true,
+  floating_timer: true,
   always_on_top: true,
   volume: 60,
   todoist_scope: 'overdue',

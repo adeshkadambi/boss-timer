@@ -155,7 +155,12 @@ ${note('sync')}`;
   function timerPanel(s: Settings): string {
     const radio = (v: AlarmMode, label: string) => `<label class="field"><input type="radio" name="alarm" value="${v}"${checked(s.alarm_mode === v)}>${label}</label>`;
     const opt = (v: AlarmSound, label: string) => `<option value="${v}"${s.alarm_sound === v ? ' selected' : ''}>${label}</option>`;
+    const inline = !s.floating_timer;
     return `<h2 class="lbl">Timer &amp; alarm</h2>
+<fieldset class="plain"><legend class="h3">Where the timer shows</legend>
+<label class="field"><input type="radio" id="place-floating" name="place" value="floating"${checked(!inline)}>In a small floating window</label>
+<label class="field"><input type="radio" id="place-inline" name="place" value="inline"${checked(inline)}>Inside Today, under the task</label>
+</fieldset>
 <fieldset class="plain"><legend class="h3">When time is up</legend>
 ${radio('both', 'Ring and shake the timer')}${radio('shake', 'Shake only')}${radio('ring', 'Ring only')}
 </fieldset>
@@ -166,8 +171,8 @@ ${radio('both', 'Ring and shake the timer')}${radio('shake', 'Shake only')}${rad
 <input id="vol" type="range" min="0" max="100" value="${s.volume}"></div>
 <div class="check-hint"><label class="field"><input type="checkbox" data-key="ask_rating"${checked(s.ask_rating)}>Ask how much was on task when a timer ends</label>
 <span class="hint">Your answer is what Reports counts as focused time.</span></div>
-<div class="check-hint"><label class="field"><input type="checkbox" data-key="always_on_top"${checked(s.always_on_top)}>Keep the timer above other windows</label>
-<span class="hint">Some Linux desktops on Wayland ignore this. On GNOME, press Alt+Space on the timer and pick “Always on Top”.</span></div>`;
+<div class="check-hint"><label class="field"><input type="checkbox" data-key="always_on_top"${checked(s.always_on_top)}${inline ? ' disabled' : ''}>Keep the floating timer above other windows</label>
+<span class="hint">${inline ? 'Only for the floating window.' : 'Some Linux desktops on Wayland ignore this. On GNOME, press Alt+Space on the timer and pick “Always on Top”.'}</span></div>`;
   }
 
   // ---- Appearance ----
@@ -285,6 +290,7 @@ ${radio('both', 'Ring and shake the timer')}${radio('shake', 'Shake only')}${rad
     const el = ev.target as HTMLInputElement;
     if (el.name === 'font') void updateSettings({ body_font: el.value as BodyFont });
     else if (el.name === 'alarm') void updateSettings({ alarm_mode: el.value as AlarmMode });
+    else if (el.name === 'place') void updateSettings({ floating_timer: el.value === 'floating' });
     else if (el.name === 'scope') void updateSettings({ todoist_scope: el.value as 'today' | 'overdue' });
     else if (el.id === 'snd') void updateSettings({ alarm_sound: el.value as AlarmSound });
     else if (el.id === 'sync-every') void updateSettings({ sync_interval_min: Number(el.value) as 5 | 15 | 30 });

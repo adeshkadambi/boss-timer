@@ -1,6 +1,6 @@
 # Boss Timer
 
-A minimal pixel-art focus timer for macOS and Linux. It shows today's Google Calendar events and Todoist tasks. Pick a task, set a duration, and a small floating timer drains like a health bar. When time's up it rings and/or shakes, asks how much of the session was on task, and logs the answer to a Reports heatmap.
+A minimal pixel-art focus timer for macOS and Linux. It shows today's Google Calendar events and Todoist tasks. Pick a task, set a duration, and a timer drains like a health bar, in a small floating window or right under the task (**Settings → Timer & alarm → Where the timer shows**). When time's up it rings and/or shakes, asks how much of the session was on task, and logs the answer to a Reports heatmap.
 
 `design/screens/` holds the original design canvas files, kept as the visual reference.
 
@@ -96,7 +96,9 @@ The alarm sounds (chime, 8-bit bell, soft beep) are generated in code, so nothin
 
 ## Keyboard
 
-In the timer window: **Space** pauses or resumes, **1–5** picks how much was on task, **Enter** logs it, **Esc** skips the question (the time counts as timed, not focused).
+In the timer (the floating window, or Today when the timer shows there): **Space** pauses or resumes, **1–5** picks how much was on task, **Enter** logs it, **Esc** skips the question (the time counts as timed, not focused).
+
+In Today, drag the bar between Tasks and Calendar to resize them (or focus it and use **← →**). Double-click it to reset.
 
 ## Linux notes
 
@@ -132,7 +134,7 @@ Everything is per machine: your MacBook and Ubuntu desktop each have their own s
 | Path | What's there |
 |---|---|
 | `index.html`, `src/main/` | Main window: Today, Settings, Reports |
-| `timer.html`, `src/timer/` | Floating timer window |
+| `timer.html`, `src/timer/` | Timer widget (`widget.ts`, also used inline in Today) and the floating window |
 | `src/lib/` | Shared front end: API wrappers, themes, mascot renderer, icons, settings |
 | `src/styles/` | Fonts and the pixel chrome (`.pxbox`, `.btn`, …) |
 | `src-tauri/src/engine.rs` | Timer state machine (pure, unit-tested) |

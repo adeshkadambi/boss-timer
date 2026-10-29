@@ -6,6 +6,7 @@ import { esc, patch } from '../lib/dom';
 import { icon } from '../lib/icons';
 import { mascotSvg } from '../lib/mascot';
 import { inTauri, onSettings, settings, updateSettings, type Settings } from '../lib/settings';
+import { TimerWidget } from '../timer/widget';
 import { loadToday, priorityFlag } from './data';
 
 const HOUR = 88; // px per hour: tall enough for the title and time on their own lines at 30 min
@@ -183,6 +184,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
   const elAllDay = q('allday');
   const elCal = q('cal');
   const elCalMeta = q('cal-meta');
+  const elToday = root.querySelector<HTMLElement>('.today')!;
   const elPanels = root.querySelector<HTMLElement>('.panels')!;
   const elSplit = q('split');
 
@@ -203,6 +205,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
     elSplit.setPointerCapture(ev.pointerId);
     dragging = true;
     elSplit.classList.add('dragging');
+    elToday.classList.add('resizing');
   });
   elSplit.addEventListener('pointermove', (ev) => {
     if (!dragging) return;
@@ -214,6 +217,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
     if (!dragging) return;
     dragging = false;
     elSplit.classList.remove('dragging');
+    elToday.classList.remove('resizing');
     saveSplit();
   };
   elSplit.addEventListener('pointerup', endDrag);
@@ -240,6 +244,15 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
     }
   }
 
+  // ---- inline timer ----
+  // With the floating timer off, the timer shows under its task row, or at the top of the
+  // list when that task isn't in it (completed, filtered out, or not from Todoist).
+  const tw = new TimerWidget({
+    floating: false,
+    onRender: (alarm) => (tw.host?.closest('.task') ?? tw.host)?.classList.toggle('alarm', alarm),
+  });
+  const inlineTimer = () => !settings().floating_timer && tw.active;
+
   // ---- tasks ----
   function notConnected(msg: string): string {
     return `<div class="empty"><p>${esc(msg)}</p><button class="btn" type="button" data-act="accounts">Open Accounts</button></div>`;
@@ -261,20 +274,20 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
     return parts.map(esc).join(' · ');
   }
 
-  function taskRow(t: Task): string {
+  function taskRow(t: Task, timing: boolean): string {
     const done = !!s.done[t.id];
-    const open = s.openId === t.id && !done;
+    const open = s.openId === t.id && !done && !timing;
     const flag = done ? null : priorityFlag(t.priority);
     const id = esc(t.id);
-    return `<li class="task${open ? ' open' : ''}${done ? ' done' : ''}" data-id="${id}">
+    return `<li class="task${open ? ' open' : ''}${timing ? ' timing' : ''}${done ? ' done' : ''}" data-id="${id}">
   <div class="row">
     <button class="ghost check" type="button" data-act="toggle" data-focus-key="toggle-${id}" aria-pressed="${done}" aria-label="${done ? 'Completed' : 'Mark complete'}: ${esc(t.title)}"><span class="pxsm box">${done ? icon('check', 14) : ''}</span></button>
-    <button class="ghost pick" type="button" data-act="pick" data-focus-key="pick-${id}" aria-expanded="${open}"${done ? ' disabled' : ''}>
+    <button class="ghost pick" type="button" data-act="pick" data-focus-key="pick-${id}" aria-expanded="${open || timing}"${done || timing ? ' disabled' : ''}>
       <span class="rowtitle">${esc(t.title)}</span><span class="proj">${metaLine(t)}</span>
     </button>
     ${flag ? `<svg class="flag" width="16" height="16" viewBox="0 0 8 8" fill="currentColor" shape-rendering="crispEdges" role="img" aria-label="${flag.label}" style="color:${flag.color}"><path d="M1 0h1v8H1z M2 1h5v3H2z"></path></svg>` : ''}
   </div>
-  ${open ? timerControls() : ''}
+  ${open ? timerControls() : ''}${timing ? '<div class="inline-timer"></div>' : ''}
 </li>`;
   }
 
@@ -294,23 +307,33 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
   ${s.note ? `<p class="hint note" role="status">${esc(s.note)}</p>` : ''}`;
   }
 
-  function renderTasks() {
+  function tasksHtml(timingId: string | null): string {
     const td = s.data?.todoist;
     if (!td) {
       elTasksMeta.textContent = '';
-      patch(elTasks, s.failed ? `<div class="empty"><p>${esc(s.failed)}</p></div>` : '<p class="empty-line meta">Loading tasks…</p>');
-      return;
+      return s.failed ? `<div class="empty"><p>${esc(s.failed)}</p></div>` : '<p class="empty-line meta">Loading tasks…</p>';
     }
-    if (!td.connected) { elTasksMeta.textContent = 'Todoist'; patch(elTasks, notConnected("Todoist isn't connected.")); return; }
-    if (td.unauthorized) { elTasksMeta.textContent = 'Todoist'; patch(elTasks, notConnected('Todoist rejected the token. Paste a new one in Accounts.')); return; }
+    if (!td.connected) { elTasksMeta.textContent = 'Todoist'; return notConnected("Todoist isn't connected."); }
+    if (td.unauthorized) { elTasksMeta.textContent = 'Todoist'; return notConnected('Todoist rejected the token. Paste a new one in Accounts.'); }
     const open = td.tasks.filter((t) => !s.done[t.id]).length;
     elTasksMeta.textContent = `Todoist · ${open} open`;
     if (td.tasks.length === 0) {
       const none = settings().todoist_scope === 'today' ? 'No tasks due today' : 'No tasks due today or overdue';
-      patch(elTasks, `${errLine(td.error)}<div class="empty"><p>${none}</p></div>`);
-      return;
+      return `${errLine(td.error)}<div class="empty"><p>${none}</p></div>`;
     }
-    patch(elTasks, `${errLine(td.error)}<ul class="task-list">${td.tasks.map(taskRow).join('')}</ul>`);
+    return `${errLine(td.error)}<ul class="task-list">${td.tasks.map((t) => taskRow(t, t.id === timingId)).join('')}</ul>`;
+  }
+
+  function renderTasks() {
+    const showTimer = inlineTimer();
+    const taskId = showTimer ? tw.view?.task?.id ?? null : null;
+    const inList = !!taskId && !!s.data?.todoist.tasks.some((t) => t.id === taskId);
+    const keep = tw.focusKey();
+    patch(elTasks, (showTimer && !inList ? '<div class="inline-timer solo"></div>' : '') + tasksHtml(inList ? taskId : null));
+    tw.showTitle = !inList;
+    const host = elTasks.querySelector<HTMLElement>('.inline-timer');
+    if (host) tw.render(host, keep);
+    else tw.host = null;
   }
 
   // ---- calendar ----
@@ -431,6 +454,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
     try {
       const r = await timer.start({ id: t.id, title: t.title, project: t.project }, secs, replace);
       s.confirm = r.started ? null : { title: r.active_title ?? 'Another task' };
+      if (r.started && !settings().floating_timer) s.openId = null;
       s.note = '';
     } catch (e) {
       s.note = errText(e);
@@ -461,6 +485,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
   }
 
   const onClick = (ev: MouseEvent) => {
+    if (tw.handleClick(ev)) return;
     const btn = (ev.target as HTMLElement).closest<HTMLElement>('[data-act]');
     if (!btn || !root.contains(btn)) return;
     const act = btn.dataset.act;
@@ -506,6 +531,8 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
 
   const onKey = (ev: KeyboardEvent) => {
     const el = ev.target as HTMLElement;
+    // Timer keys work in the inline timer, and anywhere nothing else has focus.
+    if (inlineTimer() && (tw.host?.contains(el) || el === document.body) && tw.handleKey(ev)) return;
     if (el.id !== 'dur') return;
     if (ev.key === 'Enter') { ev.preventDefault(); root.querySelector<HTMLElement>('[data-act="start"]')?.click(); }
     if (ev.key === 'ArrowUp') { ev.preventDefault(); setDur((parseDur(s.dur) ?? DEFAULT_SECS) + 60); }
@@ -515,7 +542,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
   root.addEventListener('click', onClick);
   root.addEventListener('input', onInput);
   root.addEventListener('change', onChange);
-  root.addEventListener('keydown', onKey);
+  document.addEventListener('keydown', onKey);
 
   // The now line and "Synced N min ago" move every minute; a new day reloads.
   const tick = window.setInterval(() => {
@@ -540,15 +567,41 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
       || JSON.stringify(next.google_calendars) !== JSON.stringify(was.google_calendars)
       || next.google_account !== was.google_account;
     if (resync) void sync();
+    if (next.floating_timer !== was.floating_timer) renderTasks();
     if (!dragging && Math.abs(next.tasks_split - split) > 0.001) applySplit(next.tasks_split);
   });
   let offFocus: (() => void) | undefined;
   let disposed = false;
+  const offTimer: (() => void)[] = [];
+  const keepOff = (p: Promise<() => void>) => void p.then((un) => { if (disposed) un(); else offTimer.push(un); });
   if (inTauri) {
+    keepOff(timer.onPhase((v) => {
+      const startedNow = v.phase === 'running' && v.session_id !== tw.view?.session_id;
+      tw.setView(v);
+      if (settings().floating_timer) return;
+      if (startedNow) { s.openId = null; s.confirm = null; s.note = ''; }
+      renderTasks();
+      if (startedNow) tw.host?.scrollIntoView({ block: 'nearest' });
+    }));
+    keepOff(timer.onTick((t) => { if (inlineTimer()) tw.tick(t); }));
+    void timer.state().then((v) => { if (disposed) return; tw.setView(v); if (inlineTimer()) renderTasks(); });
     void getCurrentWindow().onFocusChanged(({ payload: focused }) => {
       const last = s.data?.synced_at ?? 0;
       if (focused && !s.loading && Date.now() - last > FOCUS_RESYNC_MS) void sync();
     }).then((un) => { if (disposed) un(); else offFocus = un; });
+  } else if (import.meta.env.DEV) {
+    // Browser preview of the inline timer: ?timer=running|paused|last|up|stopped|logged[&solo]
+    const q = new URLSearchParams(location.search);
+    const st = q.get('timer');
+    if (st) {
+      void import('../dev/timer-preview').then(({ previewView }) => {
+        const v = previewView(st);
+        if (q.has('solo') && v.task) v.task.id = null;
+        tw.setView(v);
+        void updateSettings({ floating_timer: false });
+        renderTasks();
+      });
+    }
   }
 
   renderHeader();
@@ -562,9 +615,10 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
     window.clearInterval(every);
     offSettings();
     offFocus?.();
+    offTimer.forEach((un) => un());
     root.removeEventListener('click', onClick);
     root.removeEventListener('input', onInput);
     root.removeEventListener('change', onChange);
-    root.removeEventListener('keydown', onKey);
+    document.removeEventListener('keydown', onKey);
   };
 }
