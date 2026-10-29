@@ -152,3 +152,11 @@ Everything is per machine: your MacBook and Ubuntu desktop each have their own s
 cd src-tauri && cargo test     # engine, sleep handling, reports, Todoist/Google parsing, alarms
 npx tsc --noEmit               # front-end types
 ```
+
+To drive the desktop app from a script without touching your real data or accounts, run a debug build under its own app ID with mock tasks and the QC bridge on:
+
+```sh
+BOSS_TIMER_QC_PORT=47811 VITE_QC=1 npm run tauri dev -- --config '{"identifier":"io.github.adeshkadambi.bosstimer.qc"}'
+```
+
+Each connection to `127.0.0.1:47811` sends a window label (`main` or `timer`) on the first line and JavaScript after it, which runs in that window; `!close main` closes a window as its close button would. See `src-tauri/src/qc.rs`. The bridge exists only in debug builds.

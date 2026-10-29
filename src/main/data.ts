@@ -4,9 +4,12 @@
 import { syncToday, type TodayData } from '../lib/api';
 import { inTauri } from '../lib/settings';
 
+// `VITE_QC=1` (dev only) uses the mock in the desktop app too, for testing without real accounts.
+const useMock = import.meta.env.DEV && (!inTauri || import.meta.env.VITE_QC === '1');
+
 export async function loadToday(): Promise<TodayData> {
-  if (inTauri) return syncToday();
-  if (import.meta.env.DEV) {
+  if (!useMock && inTauri) return syncToday();
+  if (useMock) {
     const mock = (await import('../dev/mock-today.json')).default;
     const toMin = (hhmm: string) => {
       const [h, m] = hhmm.split(':').map(Number);

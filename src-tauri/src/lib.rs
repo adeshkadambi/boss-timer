@@ -1,6 +1,8 @@
 mod audio;
 mod db;
 mod engine;
+#[cfg(debug_assertions)]
+mod qc;
 mod google;
 mod secrets;
 mod settings;
@@ -85,6 +87,8 @@ pub fn run() {
             }
             timer::spawn_ticker(handle.clone());
             app.state::<timer::Timer>().recover(&handle);
+            #[cfg(debug_assertions)]
+            qc::start(handle.clone());
             Ok(())
         })
         .on_window_event(|window, event| {

@@ -281,13 +281,17 @@ export class TimerWidget {
   handleKey(ev: KeyboardEvent): boolean {
     const v = this.view;
     if (!v || ev.metaKey || ev.ctrlKey || ev.altKey) return false;
-    const onButton = !!(ev.target as HTMLElement).closest('button');
+    const target = ev.target as HTMLElement;
+    const onButton = !!target.closest('button');
+    // Enter on a rating cell logs, rather than re-picking that cell.
+    const onCell = !!target.closest('[data-rate]');
     if (ev.key === ' ' && !onButton && (v.phase === 'running' || v.phase === 'paused')) {
       ev.preventDefault();
       this.togglePause();
     } else if (v.phase === 'report' && /^[1-5]$/.test(ev.key)) {
       this.rate(Number(ev.key));
-    } else if (v.phase === 'report' && ev.key === 'Enter' && this.rating && !onButton) {
+      this.host?.querySelector<HTMLElement>(`[data-rate="${ev.key}"]`)?.focus();
+    } else if (v.phase === 'report' && ev.key === 'Enter' && this.rating && (!onButton || onCell)) {
       ev.preventDefault();
       void this.act(() => timer.rate(this.rating));
     } else if (v.phase === 'report' && ev.key === 'Escape') {
