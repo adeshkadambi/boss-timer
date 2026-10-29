@@ -17,12 +17,10 @@
         "url": "index.html",
         "width": 960,
         "height": 640,
-        "minWidth": 960,
+        "minWidth": 720,
         "minHeight": 520,
         "center": true,
-        "backgroundColor": "#16161e",
-        "maxWidth": 960,
-        "maximizable": false
+        "backgroundColor": "#16161e"
       }
     ],
     "security": {

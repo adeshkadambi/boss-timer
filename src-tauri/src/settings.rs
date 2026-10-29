@@ -24,6 +24,7 @@ pub fn update_and_emit(app: &tauri::AppHandle, patch: serde_json::Value) -> Resu
 
 const MIN_DURATION_SECS: u32 = 60;
 const MAX_DURATION_SECS: u32 = 180 * 60;
+const DEFAULT_SPLIT: f32 = 0.64;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -56,6 +57,10 @@ pub struct Settings {
     pub google_calendars: Option<Vec<String>>,
     /// Signed-in Google account, for display.
     pub google_account: String,
+
+    // Layout
+    /// Today view: the tasks panel's share of the width, 0.25–0.8.
+    pub tasks_split: f32,
 }
 
 impl Default for Settings {
@@ -74,6 +79,7 @@ impl Default for Settings {
             google_client_id: String::new(),
             google_calendars: None,
             google_account: String::new(),
+            tasks_split: DEFAULT_SPLIT,
         }
     }
 }
@@ -88,6 +94,7 @@ impl Settings {
     fn normalized(mut self) -> Self {
         self.last_duration_secs = self.last_duration_secs.clamp(MIN_DURATION_SECS, MAX_DURATION_SECS);
         self.volume = self.volume.min(100);
+        self.tasks_split = if self.tasks_split.is_finite() { self.tasks_split.clamp(0.25, 0.8) } else { DEFAULT_SPLIT };
         one_of(&mut self.alarm_mode, &["both", "shake", "ring"]);
         one_of(&mut self.alarm_sound, &["chime", "bell8", "beep"]);
         one_of(&mut self.todoist_scope, &["overdue", "today"]);

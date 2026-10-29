@@ -16,6 +16,11 @@ const MIN_SECS = 60;
 const MAX_SECS = 180 * 60;
 const DEFAULT_SECS = 25 * 60;
 const FOCUS_RESYNC_MS = 2 * 60_000;
+// Tasks panel's share of the width. Must match the clamp in settings.rs.
+const SPLIT_MIN = 0.25;
+const SPLIT_MAX = 0.8;
+const SPLIT_DEFAULT = 0.64;
+const SPLIT_STEP = 0.02;
 
 export interface Nav {
   openSettings(tab?: string): void;
@@ -161,6 +166,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
       <div class="panel-head">${icon('tasks', 16, 'style="color:var(--accent)"')}<h2 id="tasks-h" class="h2">Tasks</h2><span class="meta" id="tasks-meta"></span></div>
       <div class="scroll panel-body" id="tasks"></div>
     </section>
+    <div class="split" id="split" role="separator" tabindex="0" aria-orientation="vertical" aria-controls="tasks" aria-label="Resize tasks and calendar" aria-valuemin="${SPLIT_MIN * 100}" aria-valuemax="${SPLIT_MAX * 100}" title="Drag to resize · double-click to reset"></div>
     <section class="pxbox panel cal" aria-labelledby="cal-h">
       <div class="panel-head">${icon('calendar', 16, 'style="color:var(--accent2)"')}<h2 id="cal-h" class="h2">Calendar</h2><span class="meta" id="cal-meta"></span></div>
       <div id="allday"></div>
@@ -177,6 +183,49 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
   const elAllDay = q('allday');
   const elCal = q('cal');
   const elCalMeta = q('cal-meta');
+  const elPanels = root.querySelector<HTMLElement>('.panels')!;
+  const elSplit = q('split');
+
+  // ---- tasks / calendar divider ----
+  let split = SPLIT_DEFAULT;
+  let dragging = false;
+  function applySplit(v: number) {
+    split = Math.min(SPLIT_MAX, Math.max(SPLIT_MIN, Number.isFinite(v) ? v : SPLIT_DEFAULT));
+    elPanels.style.setProperty('--split', String(split));
+    elSplit.setAttribute('aria-valuenow', String(Math.round(split * 100)));
+  }
+  const saveSplit = () => void updateSettings({ tasks_split: split });
+  applySplit(settings().tasks_split);
+
+  elSplit.addEventListener('pointerdown', (ev) => {
+    if (ev.button !== 0) return;
+    ev.preventDefault();
+    elSplit.setPointerCapture(ev.pointerId);
+    dragging = true;
+    elSplit.classList.add('dragging');
+  });
+  elSplit.addEventListener('pointermove', (ev) => {
+    if (!dragging) return;
+    const r = elPanels.getBoundingClientRect();
+    const gutter = elSplit.offsetWidth;
+    applySplit((ev.clientX - r.left - gutter / 2) / (r.width - gutter));
+  });
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    elSplit.classList.remove('dragging');
+    saveSplit();
+  };
+  elSplit.addEventListener('pointerup', endDrag);
+  elSplit.addEventListener('pointercancel', endDrag);
+  elSplit.addEventListener('dblclick', () => { applySplit(SPLIT_DEFAULT); saveSplit(); });
+  elSplit.addEventListener('keydown', (ev) => {
+    const next = { ArrowLeft: split - SPLIT_STEP, ArrowRight: split + SPLIT_STEP, Home: SPLIT_MIN, End: SPLIT_MAX }[ev.key];
+    if (next === undefined) return;
+    ev.preventDefault();
+    applySplit(next);
+    saveSplit();
+  });
 
   // ---- header ----
   function renderHeader() {
@@ -491,6 +540,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
       || JSON.stringify(next.google_calendars) !== JSON.stringify(was.google_calendars)
       || next.google_account !== was.google_account;
     if (resync) void sync();
+    if (!dragging && Math.abs(next.tasks_split - split) > 0.001) applySplit(next.tasks_split);
   });
   let offFocus: (() => void) | undefined;
   let disposed = false;
