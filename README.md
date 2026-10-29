@@ -159,4 +159,4 @@ To drive the desktop app from a script without touching your real data or accoun
 BOSS_TIMER_QC_PORT=47811 VITE_QC=1 npm run tauri dev -- --config '{"identifier":"io.github.adeshkadambi.bosstimer.qc"}'
 ```
 
-Each connection to `127.0.0.1:47811` sends a window label (`main` or `timer`) on the first line and JavaScript after it, which runs in that window; `!close main` closes a window as its close button would. See `src-tauri/src/qc.rs`. The bridge exists only in debug builds.
+Each connection to `127.0.0.1:47811` sends a window label (`main` or `timer`) on the first line and JavaScript after it, which runs in that window; `!close main` closes a window as its close button would. See `src-tauri/src/qc.rs`; helpers in `scripts/qc/`, and the full routine in `.claude/skills/qc/SKILL.md`. The bridge exists only in debug builds.
