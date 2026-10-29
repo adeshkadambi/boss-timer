@@ -2,10 +2,10 @@
 @import './fonts.css';
 
 :root {
-  /* tokyo-night until settings load, so there's no flash of unstyled color */
-  --bg: #16161e; --panel: #1a1b26; --panel2: #292e42; --line: #414868; --fg: #c0caf5; --dim: #a9b1d6;
-  --accent: #7aa2f7; --accent2: #bb9af7; --warn: #e0af68; --danger: #f7768e; --onAccent: #16161e;
-  --onWarn: #16161e; --shadow: #0c0c10; --ink: #0c0c10;
+  /* everforest (the default) until settings load, so there's no flash of unstyled color */
+  --bg: #272e33; --panel: #2d353b; --panel2: #3d484d; --line: #56635f; --fg: #d3c6aa; --dim: #9da9a0;
+  --accent: #a7c080; --accent2: #7fbbb3; --warn: #dbbc7f; --danger: #e67e80; --onAccent: #232a2e;
+  --onWarn: #232a2e; --shadow: #1e2326; --ink: #1e2326;
   --body: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   --pixel: 'Pixelify Sans', ui-monospace, monospace;
   --digits: 'VT323', ui-monospace, monospace;

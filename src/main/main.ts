@@ -5,10 +5,12 @@ import '../styles/base.css';
 import './main.css';
 import { timer } from '../lib/api';
 import { inTauri, loadSettings, settings } from '../lib/settings';
+import { installWindowControls } from '../lib/window-controls';
 import { mountToday } from './today';
 import { mountSettings, type SettingsTab } from './settings-view';
 
 const view = document.getElementById('view')!;
+installWindowControls(view);
 let unmount: (() => void) | null = null;
 let onToday = false;
 

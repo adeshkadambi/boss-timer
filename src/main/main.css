@@ -3,6 +3,24 @@
 .view { height: 100vh; }
 .page-title { font: 700 24px/1.1 var(--pixel); letter-spacing: .02em; }
 
+/* ---- Window controls (the main window has no native title bar) ---- */
+.winctl { display: flex; align-items: center; flex: none; }
+.winctl-end { margin-left: auto; }
+.wbtn { border: 0; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+/* macOS: pixel traffic lights; the glyphs show while the pointer is over the group */
+.winctl.mac { gap: 8px; margin-right: 6px; }
+.winctl.mac .wbtn { width: 14px; height: 14px; color: transparent; clip-path: polygon(2px 0, 12px 0, 12px 2px, 14px 2px, 14px 12px, 12px 12px, 12px 14px, 2px 14px, 2px 12px, 0 12px, 0 2px, 2px 2px); }
+.winctl.mac .close { background: var(--danger); }
+.winctl.mac .min { background: var(--warn); }
+.winctl.mac .max { background: var(--accent); }
+.winctl.mac:hover .wbtn, .winctl.mac:focus-within .wbtn { color: var(--ink); }
+.winctl.mac .wbtn:focus-visible { outline-offset: 2px; }
+/* Linux: GNOME-style buttons on the right */
+.winctl.gtk { gap: 4px; }
+.winctl.gtk .wbtn { width: 36px; height: 36px; background: transparent; color: var(--dim); }
+.winctl.gtk .wbtn:hover { background: var(--panel2); color: var(--fg); }
+.winctl.gtk .close:hover { background: var(--danger); color: var(--onAccent); }
+
 /* ---- Today ---- */
 .today { height: 100vh; padding: 20px 20px 28px; display: flex; flex-direction: column; gap: 20px; }
 .top { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; width: 100%; }
@@ -88,8 +106,9 @@
 .now span { position: absolute; left: 0; top: -4px; width: 6px; height: 10px; background: var(--danger); }
 
 /* ---- Settings ---- */
-.settings { min-height: 100vh; padding: 28px 24px 40px; }
-.settings-head { width: 100%; max-width: 1040px; margin: 0 auto 24px; display: flex; align-items: center; gap: 14px; }
+.settings { min-height: 100vh; padding: 20px 20px 40px; }
+/* Full width like Today's top row, so the window controls sit at the window's edge. */
+.settings-head { width: 100%; margin: 0 0 24px; display: flex; align-items: center; gap: 14px; }
 .settings-head .page-title { font-size: 28px; }
 .settings-body { width: 100%; max-width: 1040px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px; }
 .settings-nav { flex: 1 1 200px; max-width: 100%; background: var(--panel); padding: 10px; display: flex; flex-direction: column; gap: 4px; }
@@ -106,7 +125,8 @@ fieldset.stack legend { padding: 0; margin-bottom: 8px; }
 .field.top input { margin-top: 3px; }
 .col { display: flex; flex-direction: column; gap: 2px; }
 
-.theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 16px; }
+.theme-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.theme-col { margin-bottom: -4px; }
 /* Each card is drawn in its own theme: its variables are set inline on the card. */
 .tcard { border: 0; cursor: pointer; text-align: left; padding: 14px; display: flex; flex-direction: column; gap: 12px; font: inherit; background: var(--panel); color: var(--fg); box-shadow: inset 0 0 0 2px var(--line); }
 .tcard.on { box-shadow: 0 0 0 4px var(--sel), inset 0 0 0 2px var(--line); }
@@ -114,7 +134,6 @@ fieldset.stack legend { padding: 0; margin-bottom: 8px; }
 .theme-grid { --sel: var(--accent); }
 .tcard-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
 .tcard-name { font: 600 15px/1.2 var(--pixel); }
-.tcard-mode { font-size: 12px; color: var(--dim); }
 .tcard-bar { display: flex; align-items: center; gap: 10px; width: 100%; }
 .tcard-track { flex: 1; height: 16px; background: repeating-linear-gradient(90deg, var(--panel2) 0 10px, var(--panel) 10px 12px); }
 .tcard-fill { display: block; width: 60%; height: 16px; background: repeating-linear-gradient(90deg, var(--accent) 0 10px, var(--panel) 10px 12px); }

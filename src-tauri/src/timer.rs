@@ -108,7 +108,7 @@ fn show_floating(app: &AppHandle) {
         .decorations(false)
         .skip_taskbar(true)
         .always_on_top(on_top)
-        .background_color(tauri::window::Color(22, 22, 30, 255))
+        .background_color(tauri::window::Color(39, 46, 51, 255)) // everforest bg, until the page paints
         .build();
     if let Err(e) = built {
         log::error!("creating timer window: {e}");

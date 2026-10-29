@@ -422,7 +422,7 @@ async fn wait_for_code(listener: &TcpListener, state: &str) -> Result<String, GE
         };
         let body = format!(
             "<!doctype html><meta charset=utf-8><title>Boss Timer</title>\
-             <body style=\"font:16px system-ui;background:#16161e;color:#c0caf5;display:grid;place-items:center;height:90vh\"><p>{msg}</p>"
+             <body style=\"font:16px system-ui;background:#272e33;color:#d3c6aa;display:grid;place-items:center;height:90vh\"><p>{msg}</p>"
         );
         let resp = format!(
             "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",

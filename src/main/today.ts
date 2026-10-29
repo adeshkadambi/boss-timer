@@ -5,6 +5,7 @@ import { accounts, errText, timer, type ApiEvent as CalEvent, type ApiTask as Ta
 import { esc, patch } from '../lib/dom';
 import { icon } from '../lib/icons';
 import { mascotSvg } from '../lib/mascot';
+import { isMac, windowControls } from '../lib/window-controls';
 import { inTauri, onSettings, settings, updateSettings, type Settings } from '../lib/settings';
 import { TimerWidget } from '../timer/widget';
 import { loadToday, priorityFlag } from './data';
@@ -149,8 +150,9 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
   };
 
   root.innerHTML = `
-<div class="today">
-  <header class="top">
+<div class="today" data-tauri-drag-region>
+  <header class="top" data-tauri-drag-region="deep">
+    ${isMac ? windowControls() : ''}
     <div class="top-left">
       ${mascotSvg(40, 0.6, 'idle', 'Boss Timer')}
       <span class="divider" aria-hidden="true"></span>
@@ -160,6 +162,7 @@ export function mountToday(root: HTMLElement, nav: Nav): () => void {
       <span class="sync meta" id="sync-status" role="status"></span>
       <button class="btn" type="button" data-act="sync">Sync</button>
       <button class="btn sq" type="button" data-act="settings" aria-label="Settings">${icon('gear')}</button>
+      ${isMac ? '' : windowControls()}
     </div>
   </header>
   <main class="panels">

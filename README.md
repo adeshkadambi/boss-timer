@@ -104,11 +104,13 @@ In Today, drag the bar between Tasks and Calendar to resize them (or focus it an
 
 - **Wayland (Ubuntu's default):** apps can't place their own windows, so the timer's position isn't restored, and GNOME ignores "keep above other windows". Press **Alt+Space** on the timer and pick **Always on Top**.
 - **Tray:** needs AppIndicator support. Ubuntu ships it; other GNOME distros may need the AppIndicator extension. Everything in the tray menu is also reachable in the app, so it works without one.
+- **No title bar:** the main window draws its own minimize, maximize and close buttons at the top right. Drag the top row to move the window, double-click it to maximize, and resize from the edges.
 - **Blank window:** on some GPU/driver setups WebKitGTK renders a blank window. Launch with `WEBKIT_DISABLE_DMABUF_RENDERER=1 boss-timer`.
 
 ## macOS notes
 
 - **Keychain prompts:** macOS ties keychain permission to the exact app binary, so every rebuild would ask again. To avoid that, dev builds (`npm run tauri dev`) keep secrets in `dev-secrets.json` in the app config dir, readable only by you, copying each one over from the keychain once. Release builds use the keychain and ask at most once per secret after you install a new build; click **Always Allow**.
+- **No title bar:** the main window draws its own close, minimize and maximize squares at the top left. Drag the top row to move the window and double-click it to maximize.
 - Closing the Today window while a timer runs only hides it. Bring it back from the tray (**Show Today**) or the Dock. Quit from the tray.
 
 ## Where things are stored
@@ -159,4 +161,4 @@ To drive the desktop app from a script without touching your real data or accoun
 BOSS_TIMER_QC_PORT=47811 VITE_QC=1 npm run tauri dev -- --config '{"identifier":"io.github.adeshkadambi.bosstimer.qc"}'
 ```
 
-Each connection to `127.0.0.1:47811` sends a window label (`main` or `timer`) on the first line and JavaScript after it, which runs in that window; `!close main` closes a window as its close button would. See `src-tauri/src/qc.rs`; helpers in `scripts/qc/`, and the full routine in `.claude/skills/qc/SKILL.md`. The bridge exists only in debug builds.
+Each connection to `127.0.0.1:47811` sends a window label (`main` or `timer`) on the first line and JavaScript after it, which runs in that window; `!close main` closes a window as its close button would, and `!show main` brings it back. See `src-tauri/src/qc.rs`; helpers in `scripts/qc/`, and the full routine in `.claude/skills/qc/SKILL.md`. The bridge exists only in debug builds.

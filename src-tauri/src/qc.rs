@@ -1,8 +1,9 @@
 //! QC bridge for driving a debug build from a script. Debug builds only, and only when
 //! BOSS_TIMER_QC_PORT is set. Listens on 127.0.0.1; each connection sends a window label on
 //! the first line and JavaScript after it, which is evaluated in that window. Scripts report
-//! back through `log_frontend`, so results show up in the app's log. `!close <label>` on the
-//! first line instead asks that window to close, as its close button would.
+//! back through `log_frontend`, so results show up in the app's log. Instead of a label, the
+//! first line can be `!close <label>` (close it, as its close button would) or `!show <label>`
+//! (unminimize, show and focus it, as the tray's Show Today does).
 
 use std::{
     io::{BufRead, BufReader, Read, Write},
@@ -29,15 +30,21 @@ pub fn start(app: AppHandle) {
                 continue;
             }
             let label = label.trim();
-            let (close, label) = match label.strip_prefix("!close ") {
-                Some(l) => (true, l),
-                None => (false, label),
+            let (cmd, label) = match label.split_once(' ') {
+                Some((c @ ("!close" | "!show"), l)) => (c, l),
+                _ => ("", label),
             };
             let reply = match app.get_webview_window(label) {
-                Some(w) if close => match w.close() {
+                Some(w) if cmd == "!close" => match w.close() {
                     Ok(()) => "ok\n".to_string(),
                     Err(e) => format!("close failed: {e}\n"),
                 },
+                Some(w) if cmd == "!show" => {
+                    let _ = w.unminimize();
+                    let _ = w.show();
+                    let _ = w.set_focus();
+                    "ok\n".to_string()
+                }
                 Some(w) => match w.eval(&js) {
                     Ok(()) => "ok\n".to_string(),
                     Err(e) => format!("eval failed: {e}\n"),

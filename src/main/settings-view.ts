@@ -4,8 +4,9 @@ import { accounts, audio, errText, syncToday, type AccountsStatus, type Calendar
 import { esc } from '../lib/dom';
 import { icon, type IconName } from '../lib/icons';
 import { mascotSvg } from '../lib/mascot';
+import { isMac, windowControls } from '../lib/window-controls';
 import { inTauri, onSettings, settings, updateSettings, type AlarmMode, type AlarmSound, type Settings } from '../lib/settings';
-import { THEME_IDS, THEMES, themeOf, themeStyle, type BodyFont, type ThemeId } from '../lib/themes';
+import { THEME_PAIRS, themeOf, themeStyle, type BodyFont, type Theme, type ThemeId } from '../lib/themes';
 import { logUi } from '../lib/report-errors';
 import { mountReports } from './reports';
 
@@ -39,11 +40,13 @@ export function mountSettings(root: HTMLElement, nav: SettingsNav, initial: Sett
   let editClient = false;
 
   root.innerHTML = `
-<div class="settings">
-  <div class="settings-head">
+<div class="settings" data-tauri-drag-region>
+  <div class="settings-head" data-tauri-drag-region="deep">
+    ${isMac ? windowControls() : ''}
     <button class="btn sq" type="button" data-act="back" aria-label="Back to today">${icon('back', 14)}</button>
     ${mascotSvg(32, 0.6, 'idle')}
     <h1 class="page-title">Settings</h1>
+    ${isMac ? '' : `<span class="winctl-end">${windowControls()}</span>`}
   </div>
   <div class="settings-body">
     <nav class="pxbox settings-nav" aria-label="Settings sections" id="snav"></nav>
@@ -177,11 +180,10 @@ ${radio('both', 'Ring and shake the timer')}${radio('shake', 'Shake only')}${rad
 
   // ---- Appearance ----
 
-  function themeCard(id: ThemeId, current: ThemeId): string {
-    const th = THEMES[id];
-    const on = id === current;
-    return `<button class="tcard${on ? ' on' : ''}" type="button" data-pick-theme="${id}" aria-pressed="${on}" style="${themeStyle(th)}">
-  <span class="tcard-top"><span class="tcard-name">${esc(th.label)}</span><span class="tcard-mode">${th.mode}</span></span>
+  function themeCard(th: Theme, current: ThemeId): string {
+    const on = th.id === current;
+    return `<button class="tcard${on ? ' on' : ''}" type="button" data-pick-theme="${th.id}" aria-pressed="${on}" aria-label="${esc(th.label)}, ${th.mode.toLowerCase()}" style="${themeStyle(th)}">
+  <span class="tcard-top"><span class="tcard-name">${esc(th.label)}</span></span>
   <span class="tcard-bar"><span class="tcard-track"><span class="tcard-fill"></span></span><span class="tcard-digits">18:42</span></span>
   <span class="tcard-swatches" aria-hidden="true"><span style="background:var(--accent)"></span><span style="background:var(--accent2)"></span><span style="background:var(--warn)"></span><span style="background:var(--danger)"></span><span style="background:var(--fg)"></span></span>
 </button>`;
@@ -193,7 +195,10 @@ ${radio('both', 'Ring and shake the timer')}${radio('shake', 'Shake only')}${rad
     return `<h2 class="lbl">Appearance</h2>
 <div class="stack">
   <h3 class="h3">Theme</h3>
-  <div class="theme-grid">${THEME_IDS.map((id) => themeCard(id, cur)).join('')}</div>
+  <div class="theme-grid">
+    <span class="lbl theme-col">Dark</span><span class="lbl theme-col">Light</span>
+    ${THEME_PAIRS.map(([dark, light]) => themeCard(dark, cur) + themeCard(light, cur)).join('')}
+  </div>
 </div>
 <fieldset class="stack fonts">
   <legend class="h3">Text font</legend>

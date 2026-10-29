@@ -61,7 +61,9 @@ Set `QC_LOG=$SCRATCH/qc/app.log` for every command.
 | Call a Rust command | inside the body: `await window.__TAURI_INTERNALS__.invoke('get_timer_state')`; see `invoke_handler!` in `src-tauri/src/lib.rs` |
 | Click / type | `el.click()`; for inputs set `value`, then dispatch `input` and `change` |
 | Keys | `el.dispatchEvent(new KeyboardEvent('keydown',{key:'4',bubbles:true,cancelable:true}))` |
-| Close a window like its close button | `node scripts/qc/close.mjs main` |
+| Close a window like its close button | `node scripts/qc/win.mjs main` (or click `[data-win=close]` in the page) |
+| Bring a hidden/minimized window back (like the tray's Show Today) | `node scripts/qc/win.mjs --show main` |
+| Window state | `invoke('plugin:window\|is_maximized',{label:'main'})`, `is_minimized`, `is_visible` |
 | Which windows are on screen | `osascript -l JavaScript scripts/qc/wins.js $(pgrep -f target/debug/boss-timer \| head -1)` (layer > 0 = always on top) |
 | Which app is in front | `osascript -e 'tell application "System Events" to get name of first process whose frontmost is true'` |
 | Put another app in front (to test "comes to front") | `osascript -e 'tell application "Ghostty" to activate'` |
@@ -80,6 +82,7 @@ For each check, return the facts that prove it from the page. Don't assume an ac
 - **Synthetic key events don't run the browser's default action.** Enter or Space on a focused button won't "click" it. Think through what the real key would do. This hid a real bug once: Enter on the auto-focused rating cell re-picked it.
 - **Setting the window size from code ignores min/max size.** Window limits can only be checked by a person dragging.
 - **No Accessibility permission** means no real mouse clicks or menu-bar or tray clicks. Use the command that the tray item calls (`stop`, `pause`, …) instead.
+- **Window dragging** needs a real mouse press, so it can't be tested. Double-click-to-maximize can be: dispatch a `dblclick` on the top row on macOS. Linux uses Tauri's own `mousedown` handler with `detail: 2`.
 - **Sound:** the log shows the alarm was triggered, but you can't hear it. Mention this.
 - **Linux/Ubuntu behavior** (Wayland, WebKitGTK) can't be tested here. Say so when the change touches it.
 

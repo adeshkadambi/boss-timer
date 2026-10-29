@@ -74,7 +74,7 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            theme: "tokyo-night".into(),
+            theme: "everforest".into(),
             body_font: "JetBrains Mono".into(),
             last_duration_secs: 25 * 60,
             alarm_mode: "both".into(),
@@ -185,7 +185,7 @@ mod tests {
     #[test]
     fn missing_file_gives_defaults() {
         let store = SettingsStore::load(temp_dir("missing"));
-        assert_eq!(store.get().theme, "tokyo-night");
+        assert_eq!(store.get().theme, "everforest");
         assert_eq!(store.get().last_duration_secs, 1500);
     }
 
