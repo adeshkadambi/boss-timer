@@ -1,6 +1,7 @@
 // Settings view (design/screens/Settings.dc.html, Reports.dc.html).
 
-import { accounts, audio, errText, syncToday, type AccountsStatus, type CalendarChoice } from '../lib/api';
+import { getVersion } from '@tauri-apps/api/app';
+import { accounts, audio, errText, syncToday, updates, type AccountsStatus, type CalendarChoice } from '../lib/api';
 import { esc } from '../lib/dom';
 import { icon, type IconName } from '../lib/icons';
 import { mascotSvg } from '../lib/mascot';
@@ -49,18 +50,64 @@ export function mountSettings(root: HTMLElement, nav: SettingsNav, initial: Sett
     ${isMac ? '' : `<span class="winctl-end">${windowControls()}</span>`}
   </div>
   <div class="settings-body">
-    <nav class="pxbox settings-nav" aria-label="Settings sections" id="snav"></nav>
+    <div class="settings-side">
+      <nav class="pxbox settings-nav" aria-label="Settings sections" id="snav"></nav>
+      <section class="pxbox update-box" aria-label="Updates" id="supd"></section>
+    </div>
     <section class="pxbox settings-panel" id="spanel"></section>
   </div>
 </div>`;
 
   const elNav = root.querySelector<HTMLElement>('#snav')!;
   const elPanel = root.querySelector<HTMLElement>('#spanel')!;
+  const elUpd = root.querySelector<HTMLElement>('#supd')!;
 
   const note = (k: string) => (msg[k] ? `<p class="hint${msg[k].err ? ' err' : ''}" role="status">${esc(msg[k].text)}</p>` : '');
 
   function renderNav() {
     elNav.innerHTML = TABS.map((t) => `<button class="nav" type="button" data-tab="${t.id}"${t.id === tab ? ' aria-current="page"' : ''}>${icon(t.icon)}${esc(t.label)}</button>`).join('');
+  }
+
+  // ---- Updates ----
+
+  let version = '';
+  let upd: { state: 'idle' | 'checking' | 'latest' | 'available' | 'installing' | 'error'; version?: string; text?: string } = { state: 'idle' };
+
+  function renderUpdate() {
+    const btn = (label: string, primary = false, disabled = false) =>
+      `<button class="btn${primary ? ' primary' : ''}" type="button" data-upd${disabled ? ' disabled' : ''}>${label}</button>`;
+    let body = '';
+    switch (upd.state) {
+      case 'idle': body = btn('Check for updates'); break;
+      case 'checking': body = btn('Checking…', false, true); break;
+      case 'latest': body = `${btn('Check again')}<p class="hint" role="status">You're on the latest version.</p>`; break;
+      case 'available': body = `${btn(`Update to v${esc(upd.version)}`, true)}<p class="hint" role="status">Installs and restarts Boss Timer.</p>`; break;
+      case 'installing': body = `${btn('Updating…', true, true)}<p class="hint" role="status">Downloading v${esc(upd.version)}. Boss Timer restarts when it's done.</p>`; break;
+      case 'error': body = `${btn(upd.version ? `Update to v${esc(upd.version)}` : 'Check for updates')}<p class="hint err" role="status">${esc(upd.text)}</p>`; break;
+    }
+    const focused = elUpd.contains(document.activeElement);
+    elUpd.innerHTML = `<span class="lbl">Boss Timer${version ? ` v${esc(version)}` : ''}</span>${body}`;
+    if (focused) elUpd.querySelector<HTMLElement>('[data-upd]')?.focus();
+  }
+
+  async function onUpdateClick() {
+    if (!inTauri) { upd = { state: 'error', text: 'Updates work in the desktop app.' }; renderUpdate(); return; }
+    const installing = upd.state === 'available' || (upd.state === 'error' && !!upd.version);
+    const v = upd.version;
+    upd = installing ? { state: 'installing', version: v } : { state: 'checking' };
+    renderUpdate();
+    try {
+      if (installing) {
+        await updates.install(); // restarts the app on success
+      } else {
+        const found = await updates.check();
+        upd = found ? { state: 'available', version: found.version } : { state: 'latest' };
+      }
+    } catch (e) {
+      logUi(`settings: update failed: ${errText(e)}`);
+      upd = { state: 'error', version: installing ? v : undefined, text: errText(e) };
+    }
+    renderUpdate();
   }
 
   // ---- Accounts ----
@@ -259,6 +306,7 @@ ${radio('both', 'Ring and shake the timer')}${radio('shake', 'Shake only')}${rad
     const navBtn = el.closest<HTMLElement>('[data-tab]');
     if (navBtn) { setTab(navBtn.dataset.tab as SettingsTab); elNav.querySelector<HTMLElement>(`[data-tab="${tab}"]`)?.focus(); return; }
     // Not [data-theme]: <html> carries data-theme for the current theme, so every click would match.
+    if (el.closest('[data-upd]')) { void onUpdateClick(); return; }
     const card = el.closest<HTMLElement>('[data-pick-theme]');
     if (card) { void updateSettings({ theme: card.dataset.pickTheme as ThemeId }); return; }
     const act = el.closest<HTMLElement>('[data-act]')?.dataset.act;
@@ -334,6 +382,8 @@ ${radio('both', 'Ring and shake the timer')}${radio('shake', 'Shake only')}${rad
   root.addEventListener('input', onInput);
   root.addEventListener('keydown', onKey);
   setTab(tab);
+  renderUpdate();
+  if (inTauri) void getVersion().then((v) => { version = v; renderUpdate(); });
 
   return () => {
     off();

@@ -3,6 +3,9 @@ name: Release
 # Push a tag like v0.1.0 to build the installers and attach them to a GitHub release:
 #   macOS: universal .dmg (Apple Silicon + Intel)
 #   Ubuntu: .deb and .AppImage
+# plus the in-app updater's files: latest.json and signed update bundles (.app.tar.gz, .AppImage).
+# They're signed with the TAURI_SIGNING_PRIVATE_KEY secret; the app checks them against the
+# public key in tauri.conf.json, so only builds from this workflow can update an installed app.
 #
 # The Google client is built in from the BOSS_TIMER_GOOGLE_CLIENT_ID / _SECRET repo secrets,
 # so the installed app only needs "Connect Google Calendar". Releases are published right away:
@@ -23,7 +26,7 @@ jobs:
       matrix:
         include:
           - platform: macos-latest
-            args: --target universal-apple-darwin --bundles dmg
+            args: --target universal-apple-darwin --bundles app,dmg
           - platform: ubuntu-22.04
             args: --bundles deb,appimage
     runs-on: ${{ matrix.platform }}
@@ -64,13 +67,26 @@ jobs:
             echo "::warning::BOSS_TIMER_GOOGLE_CLIENT_ID/SECRET aren't set; this build will ask for a Google client in Accounts."
           fi
 
+      - name: Check the update signing key is set
+        env:
+          KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::error::TAURI_SIGNING_PRIVATE_KEY isn't set, so the update files can't be signed. See README > Making a release."
+            exit 1
+          fi
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          # The key has no password.
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
           BOSS_TIMER_GOOGLE_CLIENT_ID: ${{ secrets.BOSS_TIMER_GOOGLE_CLIENT_ID }}
           BOSS_TIMER_GOOGLE_CLIENT_SECRET: ${{ secrets.BOSS_TIMER_GOOGLE_CLIENT_SECRET }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Boss Timer ${{ github.ref_name }}
           releaseDraft: false
+          includeUpdaterJson: true
           args: ${{ matrix.args }}

@@ -1,6 +1,6 @@
 [package]
 name = "boss-timer"
-version = "0.1.1"
+version = "0.1.2"
 description = "A minimal pixel-art desktop focus timer"
 edition = "2021"
 rust-version = "1.80"
@@ -32,6 +32,7 @@ rand = "0.9.5"
 url = "2.5.8"
 log = "0.4.34"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tauri-plugin-updater = "2"
 
 [profile.release]
 codegen-units = 1

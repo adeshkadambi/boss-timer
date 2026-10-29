@@ -10,27 +10,33 @@ Download the latest build from this repo's **Releases** page.
 
 **macOS** (the `universal.dmg`): open the `.dmg` and drag Boss Timer to Applications. The app isn't signed with an Apple Developer ID, so the first launch is blocked: open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to Boss Timer. You only do this once per version.
 
-**Ubuntu** (`.deb` or `.AppImage`):
+**Ubuntu**: use the `.AppImage` if you want in-app updates (the `.deb` can't update itself).
 
 ```sh
-sudo apt install ./<downloaded file>.deb       # pulls in its dependencies; then launch "Boss Timer"
-# or run the AppImage directly:
+sudo apt install libfuse2t64        # once; AppImages need FUSE 2 (on Ubuntu 22.04: libfuse2)
 chmod +x ./<downloaded file>.AppImage && ./<downloaded file>.AppImage
+# or the .deb, updated by downloading each new version:
+sudo apt install ./<downloaded file>.deb
 ```
 
 **First run:** Settings (gear) → Accounts → paste your Todoist API token, then click **Connect Google Calendar** and sign in. That's it.
 
 The first time the app reads each saved token, macOS may ask for keychain access; click **Always Allow**. After installing a newer version it asks once more, since macOS ties that permission to the exact build.
 
+### Updating
+
+**Settings → Check for updates** (under the section list). If there's a newer release it shows **Update to vX**, which downloads it, checks it was signed by this repo's release key, installs it and restarts. It won't update while a timer is running. macOS updates installed this way don't need **Open Anyway** again, but macOS may ask for keychain access once more (click **Always Allow**).
+
 ### Making a release
 
-1. One time: add your Google client as repo secrets (values from `src-tauri/google-client.json`):
-   `BOSS_TIMER_GOOGLE_CLIENT_ID` and `BOSS_TIMER_GOOGLE_CLIENT_SECRET` (repo → Settings → Secrets and variables → Actions).
+1. One time: add these repo secrets (repo → Settings → Secrets and variables → Actions):
+   - `BOSS_TIMER_GOOGLE_CLIENT_ID` and `BOSS_TIMER_GOOGLE_CLIENT_SECRET`: your Google client (from `src-tauri/google-client.json`).
+   - `TAURI_SIGNING_PRIVATE_KEY`: the update signing key, `gh secret set TAURI_SIGNING_PRIVATE_KEY < ~/.tauri/boss-timer.key`. Its public half is in `tauri.conf.json` (`plugins.updater.pubkey`). Back up `~/.tauri/boss-timer.key`: without it, installed copies can't be updated (you'd have to reinstall by hand).
 2. Bump `version` in `src-tauri/tauri.conf.json` and `package.json`, commit, then tag and push:
    ```sh
    git tag v0.1.0 && git push origin v0.1.0
    ```
-3. GitHub Actions builds the universal `.dmg` on macOS and the `.deb` + `.AppImage` on Ubuntu, and attaches them to the release (about 15 minutes).
+3. GitHub Actions builds the universal `.dmg` on macOS and the `.deb` + `.AppImage` on Ubuntu, plus the signed update files and `latest.json`, and attaches them to the release (about 15 minutes). Installed apps find it through `releases/latest/download/latest.json`.
 
 ## Run it
 
@@ -145,6 +151,7 @@ Everything is per machine: your MacBook and Ubuntu desktop each have their own s
 | `src-tauri/src/todoist.rs`, `google.rs`, `sync.rs` | Todoist v1, Google Calendar OAuth + events, sync and account commands |
 | `src-tauri/src/audio.rs` | Alarm synthesis and playback (rodio) |
 | `src-tauri/src/tray.rs` | Tray icon and menu |
+| `src-tauri/src/updates.rs` | In-app updates from GitHub Releases (release builds only) |
 | `scripts/gen-icons.mjs` | Draws the app and tray icons from the mascot (`npm run icons`) |
 | `licenses/fonts/` | OFL licenses for the bundled fonts (shipped with the app) |
 

@@ -10,6 +10,7 @@ mod sync;
 mod timer;
 mod todoist;
 mod tray;
+mod updates;
 
 use settings::{Settings, SettingsStore};
 use std::sync::Arc;
@@ -65,6 +66,8 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .manage(updates::Updates::default())
         .setup(|app| {
             let handle = app.handle().clone();
             let config = app.path().app_config_dir()?;
@@ -133,6 +136,8 @@ pub fn run() {
             sync::google_calendars,
             db::get_report,
             audio::preview_alarm,
+            updates::check_update,
+            updates::install_update,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Boss Timer")

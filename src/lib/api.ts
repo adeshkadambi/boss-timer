@@ -147,6 +147,20 @@ export const audio = {
   preview: (sound: AlarmSound) => invoke<void>('preview_alarm', { sound }),
 };
 
+// ---- updates ----
+
+export interface UpdateInfo {
+  version: string;
+  notes: string | null;
+}
+
+export const updates = {
+  /** A newer release, or null if this is the latest. */
+  check: () => invoke<UpdateInfo | null>('check_update'),
+  /** Installs the update from the last check and restarts the app. */
+  install: () => invoke<void>('install_update'),
+};
+
 /** Error text from a rejected invoke. */
 export function errText(e: unknown): string {
   return typeof e === 'string' ? e : e instanceof Error ? e.message : 'Something went wrong.';
