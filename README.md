@@ -19,7 +19,7 @@ chmod +x ./<downloaded file>.AppImage && ./<downloaded file>.AppImage
 sudo apt install ./<downloaded file>.deb
 ```
 
-**First run:** Settings (gear) → Accounts → paste your Todoist API token, then click **Connect Google Calendar** and sign in. That's it.
+**First run:** Settings (gear) → Accounts → paste your Todoist API token, paste your Google client ID and secret (see [Google Calendar](#google-calendar-read-only)), then click **Connect Google Calendar** and sign in. You do this once per machine; updates keep it.
 
 The first time the app reads each saved token, macOS may ask for keychain access; click **Always Allow**. After installing a newer version it asks once more, since macOS ties that permission to the exact build.
 
@@ -29,9 +29,7 @@ The first time the app reads each saved token, macOS may ask for keychain access
 
 ### Making a release
 
-1. One time: add these repo secrets (repo → Settings → Secrets and variables → Actions):
-   - `BOSS_TIMER_GOOGLE_CLIENT_ID` and `BOSS_TIMER_GOOGLE_CLIENT_SECRET`: your Google client (from `src-tauri/google-client.json`).
-   - `TAURI_SIGNING_PRIVATE_KEY`: the update signing key, `gh secret set TAURI_SIGNING_PRIVATE_KEY < ~/.tauri/boss-timer.key`. Its public half is in `tauri.conf.json` (`plugins.updater.pubkey`). Back up `~/.tauri/boss-timer.key`: without it, installed copies can't be updated (you'd have to reinstall by hand).
+1. One time: add the repo secret `TAURI_SIGNING_PRIVATE_KEY` (repo → Settings → Secrets and variables → Actions), the update signing key: `gh secret set TAURI_SIGNING_PRIVATE_KEY < ~/.tauri/boss-timer.key`. Its public half is in `tauri.conf.json` (`plugins.updater.pubkey`). Back up `~/.tauri/boss-timer.key`: without it, installed copies can't be updated (you'd have to reinstall by hand).
 2. Bump `version` in `src-tauri/tauri.conf.json` and `package.json`, commit, then tag and push:
    ```sh
    git tag v0.1.0 && git push origin v0.1.0
@@ -72,7 +70,7 @@ Paste your personal API token from Todoist: Settings → Integrations → Develo
 
 ### Google Calendar (read-only)
 
-You create one Google OAuth client and build it into the app. After that, each machine just has a **Connect Google Calendar** button.
+You create one Google OAuth client, paste it into the app once per machine, then sign in. Release builds are public, so they don't include a client.
 
 **Once, in [Google Cloud Console](https://console.cloud.google.com/):**
 
@@ -80,19 +78,11 @@ You create one Google OAuth client and build it into the app. After that, each m
 2. APIs & Services → Library → enable **Google Calendar API**.
 3. APIs & Services → OAuth consent screen: User type **External**. Add the scope `.../auth/calendar.readonly` and add your Google account as a test user.
 4. Still on the consent screen, click **Publish app**. Otherwise Google signs you out every 7 days. Because calendar access is a sensitive scope, Google shows an "unverified app" warning when you sign in; click **Advanced → Go to Boss Timer** to continue. That's fine for personal use.
-5. APIs & Services → Credentials → Create credentials → OAuth client ID → Application type **Desktop app**. Download its JSON file.
+5. APIs & Services → Credentials → Create credentials → OAuth client ID → Application type **Desktop app**. Note its client ID and secret (or download the JSON).
 
-**On each machine you build on (MacBook, Ubuntu desktop):**
+**On each machine (MacBook, Ubuntu desktop):** Settings → Accounts → Google: paste the client ID and secret, save, then **Connect Google Calendar** and sign in in your browser. The secret goes in the keychain; each machine keeps its own sign-in.
 
-1. Save the downloaded file as `src-tauri/google-client.json`. It's gitignored.
-2. Build or run the app (`npm run tauri dev` or `npm run tauri build`). If the file is missing, Accounts asks for a client instead; if it's broken, the build prints a warning.
-3. Open Settings → Accounts → **Connect Google Calendar** and sign in in your browser.
-
-Each machine signs in separately and keeps its own sign-in in its keychain.
-
-For release builds made by GitHub Actions, the client comes from repo secrets instead (see Making a release).
-
-A desktop client secret isn't really confidential (Google says so for installed apps), but it stays out of git anyway. To use a different client without rebuilding, Accounts still has a form for pasting one; it overrides the built-in client until you click **Use built-in client**.
+**Local builds only:** if you build the app yourself, you can save the client JSON as `src-tauri/google-client.json` (gitignored) and it's compiled in, so Accounts skips the paste step. Never do that for builds you publish: anything compiled in can be extracted.
 
 **If you see "Reconnect Google":** Google ended the sign-in. That happens every 7 days while the consent screen is in "Testing"; publishing the app (step 4) stops it.
 
@@ -134,7 +124,7 @@ Everything is per machine: your MacBook and Ubuntu desktop each have their own s
 
 - **Todoist token, Google sign-in, Google client secret:** release builds keep them in the OS keychain. Dev builds keep them in `dev-secrets.json` in the app config dir, readable only by your user. None of them are ever sent to the web page except as "connected / not connected".
 - **Google OAuth:** authorization code + PKCE, a random `state` checked on return, and a one-shot listener bound to `127.0.0.1` only. The app asks for read-only calendar access.
-- **Built-in Google client:** `src-tauri/google-client.json` is gitignored and its values are compiled into the app. Anyone with a copy of the built app could extract the client ID and secret. Google says desktop-app secrets can't be kept confidential and doesn't treat them as secret, and nobody can read your calendar without signing in as you. Still, keep builds private: the release workflow makes **draft** releases; don't publish them from a public repo. If a secret ever leaks, reset it in Google Cloud Console → Credentials.
+- **Google client:** public release builds contain no Google client; you paste yours into Accounts and it's stored in the keychain. `src-tauri/google-client.json` (gitignored) compiles a client into *local* builds only, so don't publish those. Nobody can read your calendar without your own sign-in, which never leaves your machine. If a client secret ever leaks, add a new secret and delete the old one in Google Cloud Console → Credentials.
 - **Web page lockdown:** a strict Content Security Policy (no remote scripts, no network access from the page), and all text from Todoist and Google is HTML-escaped before display.
 
 ## Code layout

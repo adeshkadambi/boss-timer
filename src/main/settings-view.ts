@@ -137,7 +137,7 @@ export function mountSettings(root: HTMLElement, nav: SettingsNav, initial: Sett
     if (!a.google_configured || editClient) {
       const intro = a.google_builtin
         ? 'This app has a Google client built in. Only fill this in to use a different one.'
-        : 'No Google client was built into this app. Put your google-client.json in src-tauri/ and rebuild (see the README), or paste a “Desktop app” OAuth client here. The secret is stored in your keychain.';
+        : 'Paste your Google “Desktop app” OAuth client ID and secret (Google Cloud Console → Credentials; see the README). You do this once on each machine; the secret is stored in your keychain.';
       body = `<p class="hint">${intro}</p>
 <div class="form-col">
   <label class="hint" for="gid">Client ID</label>

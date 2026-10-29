@@ -7,10 +7,10 @@ name: Release
 # They're signed with the TAURI_SIGNING_PRIVATE_KEY secret; the app checks them against the
 # public key in tauri.conf.json, so only builds from this workflow can update an installed app.
 #
-# The Google client is built in from the BOSS_TIMER_GOOGLE_CLIENT_ID / _SECRET repo secrets,
-# so the installed app only needs "Connect Google Calendar". Releases are published right away:
-# fine for a private repo. If the repo ever goes public, set releaseDraft back to true, since
-# anyone could download a build and extract the client secret from it.
+# Releases are public and published right away (not drafts): installed apps find updates through
+# the releases/latest URL. So these builds contain no Google client; each machine pastes its own
+# in Settings > Accounts once. Don't pass BOSS_TIMER_GOOGLE_CLIENT_* here: anything compiled in
+# can be extracted from a public download.
 on:
   push:
     tags: ['v*']
@@ -58,15 +58,6 @@ jobs:
       - name: Test
         run: cargo test --manifest-path src-tauri/Cargo.toml
 
-      - name: Check the Google client secrets are set
-        env:
-          ID: ${{ secrets.BOSS_TIMER_GOOGLE_CLIENT_ID }}
-          SECRET: ${{ secrets.BOSS_TIMER_GOOGLE_CLIENT_SECRET }}
-        run: |
-          if [ -z "$ID" ] || [ -z "$SECRET" ]; then
-            echo "::warning::BOSS_TIMER_GOOGLE_CLIENT_ID/SECRET aren't set; this build will ask for a Google client in Accounts."
-          fi
-
       - name: Check the update signing key is set
         env:
           KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -82,8 +73,6 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           # The key has no password.
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
-          BOSS_TIMER_GOOGLE_CLIENT_ID: ${{ secrets.BOSS_TIMER_GOOGLE_CLIENT_ID }}
-          BOSS_TIMER_GOOGLE_CLIENT_SECRET: ${{ secrets.BOSS_TIMER_GOOGLE_CLIENT_SECRET }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Boss Timer ${{ github.ref_name }}
