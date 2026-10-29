@@ -13,8 +13,8 @@ Download the latest build from this repo's **Releases** page.
 **Ubuntu**: use the `.AppImage` if you want in-app updates (the `.deb` can't update itself).
 
 ```sh
-sudo apt install libfuse2t64        # once; AppImages need FUSE 2 (on Ubuntu 22.04: libfuse2)
 chmod +x ./<downloaded file>.AppImage && ./<downloaded file>.AppImage
+# if it says "No suitable fusermount binary found": sudo apt install fuse3
 # or the .deb, updated by downloading each new version:
 sudo apt install ./<downloaded file>.deb
 ```
