@@ -7,7 +7,18 @@ import { inTauri } from '../lib/settings';
 // `VITE_QC=1` (dev only) uses the mock in the desktop app too, for testing without real accounts.
 const useMock = import.meta.env.DEV && (!inTauri || import.meta.env.VITE_QC === '1');
 
+let tasks: TodayData['todoist']['tasks'] = [];
+
+/** Today's tasks from the last sync that got them. */
+export const lastTasks = () => tasks;
+
 export async function loadToday(): Promise<TodayData> {
+  const next = await fetchToday();
+  if (!next.todoist.error) tasks = next.todoist.tasks;
+  return next;
+}
+
+async function fetchToday(): Promise<TodayData> {
   if (!useMock && inTauri) return syncToday();
   if (useMock) {
     const mock = (await import('../dev/mock-today.json')).default;

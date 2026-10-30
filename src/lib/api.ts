@@ -141,6 +141,45 @@ export interface Report {
 
 export const getReport = (year?: number) => invoke<Report>('get_report', { year });
 
+/** A session logged by hand, for time worked without a timer. */
+export interface ManualEntry {
+  task_id: string | null;
+  title: string;
+  project: string | null;
+  /** Local date, YYYY-MM-DD. */
+  date: string;
+  /** Local start time, HH:MM. */
+  start: string;
+  minutes: number;
+  /** 1–5 (20–100% on task); null counts as timed only. */
+  rating: number | null;
+}
+
+export interface SessionRow {
+  id: number;
+  title: string;
+  project: string | null;
+  started_at: string;
+  timed_secs: number;
+  focused_secs: number;
+  rating: number | null;
+  /** Logged by hand, so it can be deleted. */
+  manual: boolean;
+}
+
+export interface RecentTask {
+  task_id: string | null;
+  title: string;
+  project: string | null;
+}
+
+export const sessions = {
+  logManual: (entry: ManualEntry) => invoke<number>('log_manual', { entry }),
+  deleteManual: (id: number) => invoke<void>('delete_manual', { id }),
+  day: (date: string) => invoke<SessionRow[]>('day_sessions', { date }),
+  recentTasks: () => invoke<RecentTask[]>('recent_tasks'),
+};
+
 // ---- audio ----
 
 export const audio = {

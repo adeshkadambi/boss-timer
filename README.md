@@ -90,6 +90,12 @@ You create one Google OAuth client, paste it into the app once per machine, then
 
 The alarm sounds (chime, 8-bit bell, soft beep) are generated in code, so nothing needs downloading. Pick one and set its volume in Settings → Timer & alarm.
 
+## Logging time without a timer
+
+Worked on a task without starting a timer (say, in a meeting)? Open **Settings → Reports**, click **+ Log time**, and fill in the task, date, start time, minutes and how much was on task. It counts in Reports like a timed session. Pick the task from the suggestions (today's Todoist tasks and tasks you've timed before) or type any name.
+
+Click a day in the heatmap to see its sessions. Entries you logged by hand have a **Delete** button, so you can fix a mistake; timed sessions can't be deleted.
+
 ## Keyboard
 
 In the timer (the floating window, or Today when the timer shows there): **Space** pauses or resumes, **1–5** picks how much was on task, **Enter** logs it, **Esc** skips the question (the time counts as timed, not focused).
