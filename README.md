@@ -86,6 +86,24 @@ You create one Google OAuth client, paste it into the app once per machine, then
 
 **If you see "Reconnect Google":** Google ended the sign-in. That happens every 7 days while the consent screen is in "Testing"; publishing the app (step 4) stops it.
 
+### Cloud sync (Supabase, free tier)
+
+Keeps your session log and Reports the same on every computer you sign in on. Only finished sessions are synced (not settings, tokens or timers in progress). It uses a Supabase project in your own account; the free plan is plenty (a session is about 300 bytes).
+
+**Once, in your [Supabase dashboard](https://supabase.com/dashboard):**
+
+1. Use an existing project or create one (Free plan).
+2. SQL Editor → New query → paste `supabase/schema.sql` → Run. This creates the `sessions` table with row-level security, so each account only ever sees its own rows.
+3. Authentication → Sign In / Providers → **Google** → enable it. It needs a Google OAuth client of type **Web application** (Google Cloud Console → Credentials). Put Supabase's callback URL (shown on that page, `https://<project>.supabase.co/auth/v1/callback`) in the client's **Authorized redirect URIs**, then paste its client ID and secret into Supabase. This is a different client from the Calendar one above.
+4. Authentication → URL Configuration → **Redirect URLs** → add `http://127.0.0.1:53682`.
+5. Project Settings → API: note the **Project URL** and the **publishable** key (`sb_publishable_…`, under API Keys; the legacy `anon` key works too but Supabase retires it in 2027). Never use a secret key or `service_role`; the app refuses them.
+
+**In the app:** Settings → Accounts → Cloud sync: paste the URL and publishable key, save, then **Sign in with Google**. The first sync uploads everything already logged on this computer and downloads the rest. Do the same on your other computer; after that it syncs by itself shortly after each session, every 5 minutes, and at launch. **Sync now** forces it.
+
+**So updates sync with no setup:** put the URL and publishable key in the repo's Actions *variables* `BOSS_TIMER_SUPABASE_URL` and `BOSS_TIMER_SUPABASE_KEY` (or in a gitignored `src-tauri/supabase.json` for local builds: `{"url": "...", "key": "sb_publishable_..."}`). They are public by design, so unlike the Google client it's fine to compile them into public releases. Then you only click **Sign in with Google** after updating.
+
+**Free-tier note:** Supabase pauses free projects after about a week with no activity. Your data is kept; click **Restore** in the dashboard and the next sync resumes. Deleting a hand-logged session on one computer deletes it everywhere.
+
 ## Alarm sounds
 
 The alarm sounds (chime, 8-bit bell, soft beep) are generated in code, so nothing needs downloading. Pick one and set its volume in Settings → Timer & alarm.

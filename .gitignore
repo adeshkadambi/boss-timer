@@ -6,6 +6,8 @@ src-tauri/gen/schemas/
 *.log
 # Your Google OAuth desktop client (built into the app at compile time)
 src-tauri/google-client.json
+# Your Supabase project for cloud sync (built into the app at compile time)
+src-tauri/supabase.json
 # Never commit local env files or secrets
 .env
 .env.*

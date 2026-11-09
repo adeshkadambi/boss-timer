@@ -146,6 +146,7 @@ fn log_session(app: &AppHandle, timer: &Timer, rating: Option<u8>) {
             log::error!("logging session: {err}");
         }
         let _ = app.emit("reports://changed", ());
+        crate::cloud::nudge(app);
     }
 }
 
@@ -211,6 +212,7 @@ pub async fn start_timer(app: AppHandle, task: TaskRef, secs: u64, replace: bool
                 let natural = e.ended_naturally();
                 if let Some((timed, _)) = e.log(None, now) {
                     timer.db.finish_session(id, timed, None, natural).map_err(|err| err.to_string())?;
+                    crate::cloud::nudge(&app);
                 }
             }
         }

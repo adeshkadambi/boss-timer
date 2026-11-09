@@ -122,6 +122,33 @@ export const accounts = {
   googleCalendars: () => invoke<CalendarChoice[]>('google_calendars'),
 };
 
+// ---- cloud sync ----
+
+export interface CloudStatus {
+  /** A Supabase project is built in or saved. */
+  configured: boolean;
+  builtin: boolean;
+  connected: boolean;
+  needs_reconnect: boolean;
+  account: string;
+  syncing: boolean;
+  /** Unix ms. */
+  last_sync: number | null;
+  error: string | null;
+  /** Sessions not uploaded yet. */
+  pending: number;
+  supabase_url: string;
+}
+
+export const cloud = {
+  status: () => invoke<CloudStatus>('cloud_status'),
+  saveConfig: (url: string, key: string) => invoke<void>('cloud_save_config', { url, key }),
+  clearConfig: () => invoke<void>('cloud_clear_config'),
+  connect: () => invoke<string>('cloud_connect'),
+  disconnect: () => invoke<void>('cloud_disconnect'),
+  syncNow: () => invoke<{ pushed: number; pulled: number }>('cloud_sync_now'),
+};
+
 // ---- reports ----
 
 export interface DayRow {

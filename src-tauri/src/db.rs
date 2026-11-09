@@ -21,6 +21,67 @@ CREATE TABLE IF NOT EXISTS sessions(
 CREATE INDEX IF NOT EXISTS sessions_started ON sessions(started_at);
 ";
 
+/// Columns added after the first release; `migrate` adds them to older databases.
+/// `uuid` identifies a session across computers, `deleted` is a tombstone so a delete syncs,
+/// and `dirty` marks rows the cloud hasn't seen yet.
+fn migrate(conn: &Connection) -> rusqlite::Result<()> {
+    let has = |col: &str| -> rusqlite::Result<bool> {
+        conn.query_row("SELECT COUNT(*) FROM pragma_table_info('sessions') WHERE name = ?1", [col], |r| r.get::<_, i64>(0))
+            .map(|n| n > 0)
+    };
+    if !has("uuid")? {
+        conn.execute_batch("ALTER TABLE sessions ADD COLUMN uuid TEXT;")?;
+    }
+    if !has("deleted")? {
+        conn.execute_batch("ALTER TABLE sessions ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0;")?;
+    }
+    if !has("dirty")? {
+        // Every existing row starts dirty, so the first sync uploads the whole history.
+        conn.execute_batch("ALTER TABLE sessions ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;")?;
+    }
+    let missing: Vec<i64> = conn
+        .prepare("SELECT id FROM sessions WHERE uuid IS NULL")?
+        .query_map([], |r| r.get(0))?
+        .collect::<Result<_, _>>()?;
+    for id in missing {
+        conn.execute("UPDATE sessions SET uuid = ?2 WHERE id = ?1", params![id, new_uuid()])?;
+    }
+    conn.execute_batch(
+        "CREATE UNIQUE INDEX IF NOT EXISTS sessions_uuid ON sessions(uuid);
+         CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT NOT NULL);",
+    )
+}
+
+/// A random (version 4) UUID.
+pub fn new_uuid() -> String {
+    use rand::RngCore;
+    let mut b = [0u8; 16];
+    rand::rng().fill_bytes(&mut b);
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    let h: String = b.iter().map(|x| format!("{x:02x}")).collect();
+    format!("{}-{}-{}-{}-{}", &h[..8], &h[8..12], &h[12..16], &h[16..20], &h[20..])
+}
+
+/// A session as the cloud stores it. Times stay as the local RFC 3339 text they were logged
+/// with, because Reports group by the first 10 characters (the local date).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct SyncRow {
+    pub id: String,
+    pub task_source: String,
+    pub task_id: Option<String>,
+    pub task_title: String,
+    pub project: Option<String>,
+    pub started_at: String,
+    pub ended_at: Option<String>,
+    pub planned_secs: i64,
+    pub timed_secs: i64,
+    pub rating: Option<i64>,
+    pub focused_secs: i64,
+    pub ended_naturally: bool,
+    pub deleted: bool,
+}
+
 pub struct Db {
     conn: Mutex<Connection>,
 }
@@ -157,6 +218,7 @@ impl Db {
     fn init(conn: Connection) -> rusqlite::Result<Self> {
         conn.execute_batch("PRAGMA journal_mode=WAL;")?;
         conn.execute_batch(SCHEMA)?;
+        migrate(&conn)?;
         Ok(Self { conn: Mutex::new(conn) })
     }
 
@@ -171,9 +233,9 @@ impl Db {
     ) -> rusqlite::Result<i64> {
         let c = self.conn.lock().unwrap();
         c.execute(
-            "INSERT INTO sessions(task_source, task_id, task_title, project, started_at, planned_secs)
-             VALUES ('todoist', ?1, ?2, ?3, ?4, ?5)",
-            params![task_id, title, project, started_at.to_rfc3339(), planned_secs as i64],
+            "INSERT INTO sessions(task_source, task_id, task_title, project, started_at, planned_secs, uuid)
+             VALUES ('todoist', ?1, ?2, ?3, ?4, ?5, ?6)",
+            params![task_id, title, project, started_at.to_rfc3339(), planned_secs as i64, new_uuid()],
         )?;
         Ok(c.last_insert_rowid())
     }
@@ -197,7 +259,8 @@ impl Db {
     ) -> rusqlite::Result<u64> {
         let focused = focused_secs(timed_secs, rating);
         self.conn.lock().unwrap().execute(
-            "UPDATE sessions SET ended_at = ?2, timed_secs = ?3, rating = ?4, focused_secs = ?5, ended_naturally = ?6
+            "UPDATE sessions SET ended_at = ?2, timed_secs = ?3, rating = ?4, focused_secs = ?5, ended_naturally = ?6,
+                                 dirty = 1
              WHERE id = ?1",
             params![
                 id,
@@ -235,7 +298,7 @@ impl Db {
         };
         if let Some(s) = &latest {
             self.conn.lock().unwrap().execute(
-                "UPDATE sessions SET ended_at = started_at WHERE ended_at IS NULL AND id <> ?1",
+                "UPDATE sessions SET ended_at = started_at, dirty = 1 WHERE ended_at IS NULL AND id <> ?1",
                 params![s.id],
             )?;
         }
@@ -250,8 +313,8 @@ impl Db {
         let c = self.conn.lock().unwrap();
         c.execute(
             "INSERT INTO sessions(task_source, task_id, task_title, project, started_at, ended_at,
-                                  planned_secs, timed_secs, rating, focused_secs, ended_naturally)
-             VALUES ('manual', ?1, ?2, ?3, ?4, ?5, ?6, ?6, ?7, ?8, 1)",
+                                  planned_secs, timed_secs, rating, focused_secs, ended_naturally, uuid)
+             VALUES ('manual', ?1, ?2, ?3, ?4, ?5, ?6, ?6, ?7, ?8, 1, ?9)",
             params![
                 clean(e.task_id.as_deref()),
                 e.title.trim(),
@@ -261,6 +324,7 @@ impl Db {
                 secs as i64,
                 e.rating.map(i64::from),
                 focused_secs(secs, e.rating) as i64,
+                new_uuid(),
             ],
         )
         .map_err(|e| e.to_string())?;
@@ -273,7 +337,7 @@ impl Db {
             .conn
             .lock()
             .unwrap()
-            .execute("DELETE FROM sessions WHERE id = ?1 AND task_source = 'manual'", [id])
+            .execute("UPDATE sessions SET deleted = 1, dirty = 1 WHERE id = ?1 AND task_source = 'manual' AND deleted = 0", [id])
             .map_err(|e| e.to_string())?;
         if n == 0 {
             return Err("Only sessions you logged by hand can be deleted.".into());
@@ -286,7 +350,7 @@ impl Db {
         let c = self.conn.lock().unwrap();
         let mut stmt = c.prepare(
             "SELECT id, task_title, project, started_at, timed_secs, focused_secs, rating, task_source = 'manual'
-             FROM sessions WHERE ended_at IS NOT NULL AND substr(started_at, 1, 10) = ?1 ORDER BY started_at, id",
+             FROM sessions WHERE ended_at IS NOT NULL AND deleted = 0 AND substr(started_at, 1, 10) = ?1 ORDER BY started_at, id",
         )?;
         let rows = stmt
             .query_map([date], |r| {
@@ -310,12 +374,111 @@ impl Db {
         let c = self.conn.lock().unwrap();
         let mut stmt = c.prepare(
             "SELECT task_id, task_title, project FROM sessions
-             GROUP BY task_title, IFNULL(project, '') ORDER BY MAX(id) DESC LIMIT ?1",
+             WHERE deleted = 0
+             GROUP BY task_title, IFNULL(project, '') ORDER BY MAX(started_at) DESC LIMIT ?1",
         )?;
         let rows = stmt
             .query_map([limit], |r| Ok(RecentTask { task_id: r.get(0)?, title: r.get(1)?, project: r.get(2)? }))?
             .collect();
         rows
+    }
+
+    // ---- cloud sync ----
+
+    pub fn meta_get(&self, k: &str) -> Option<String> {
+        self.conn.lock().unwrap().query_row("SELECT v FROM meta WHERE k = ?1", [k], |r| r.get(0)).optional().ok().flatten()
+    }
+
+    pub fn meta_set(&self, k: &str, v: Option<&str>) -> rusqlite::Result<()> {
+        let c = self.conn.lock().unwrap();
+        match v {
+            Some(v) => c.execute("INSERT INTO meta(k, v) VALUES (?1, ?2) ON CONFLICT(k) DO UPDATE SET v = excluded.v", params![k, v])?,
+            None => c.execute("DELETE FROM meta WHERE k = ?1", [k])?,
+        };
+        Ok(())
+    }
+
+    /// Finished sessions the cloud hasn't seen (or whose delete it hasn't seen).
+    pub fn dirty_rows(&self, limit: usize) -> rusqlite::Result<Vec<SyncRow>> {
+        let c = self.conn.lock().unwrap();
+        let mut stmt = c.prepare(
+            "SELECT uuid, task_source, task_id, task_title, project, started_at, ended_at, planned_secs, timed_secs,
+                    rating, focused_secs, ended_naturally, deleted
+             FROM sessions WHERE dirty = 1 AND ended_at IS NOT NULL ORDER BY id LIMIT ?1",
+        )?;
+        let rows = stmt
+            .query_map([limit as i64], |r| {
+                Ok(SyncRow {
+                    id: r.get(0)?,
+                    task_source: r.get(1)?,
+                    task_id: r.get(2)?,
+                    task_title: r.get(3)?,
+                    project: r.get(4)?,
+                    started_at: r.get(5)?,
+                    ended_at: r.get(6)?,
+                    planned_secs: r.get(7)?,
+                    timed_secs: r.get(8)?,
+                    rating: r.get(9)?,
+                    focused_secs: r.get(10)?,
+                    ended_naturally: r.get(11)?,
+                    deleted: r.get(12)?,
+                })
+            })?
+            .collect();
+        rows
+    }
+
+    pub fn mark_clean(&self, ids: &[String]) -> rusqlite::Result<()> {
+        let c = self.conn.lock().unwrap();
+        for id in ids {
+            c.execute("UPDATE sessions SET dirty = 0 WHERE uuid = ?1", [id])?;
+        }
+        Ok(())
+    }
+
+    /// Merges rows from the cloud. A row with local changes not yet uploaded wins.
+    /// Returns how many rows actually changed here.
+    pub fn apply_remote(&self, rows: &[SyncRow]) -> rusqlite::Result<usize> {
+        let mut c = self.conn.lock().unwrap();
+        let tx = c.transaction()?;
+        let mut changed = 0;
+        for r in rows {
+            changed += tx.execute(
+                "INSERT INTO sessions(uuid, task_source, task_id, task_title, project, started_at, ended_at, planned_secs,
+                                      timed_secs, rating, focused_secs, ended_naturally, deleted, dirty)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, 0)
+                 ON CONFLICT(uuid) DO UPDATE SET
+                   task_source = excluded.task_source, task_id = excluded.task_id, task_title = excluded.task_title,
+                   project = excluded.project, started_at = excluded.started_at, ended_at = excluded.ended_at,
+                   planned_secs = excluded.planned_secs, timed_secs = excluded.timed_secs, rating = excluded.rating,
+                   focused_secs = excluded.focused_secs, ended_naturally = excluded.ended_naturally,
+                   deleted = excluded.deleted
+                 WHERE sessions.dirty = 0 AND (sessions.deleted <> excluded.deleted OR sessions.timed_secs <> excluded.timed_secs
+                   OR sessions.focused_secs <> excluded.focused_secs OR sessions.ended_at IS NOT excluded.ended_at)",
+                params![
+                    r.id, r.task_source, r.task_id, r.task_title, r.project, r.started_at, r.ended_at, r.planned_secs,
+                    r.timed_secs, r.rating, r.focused_secs, r.ended_naturally, r.deleted
+                ],
+            )?;
+        }
+        tx.commit()?;
+        Ok(changed)
+    }
+
+    /// For a fresh sign-in: forget how far we'd pulled and upload everything again. Safe to
+    /// repeat, because the cloud merges by session id.
+    pub fn reset_sync(&self) -> rusqlite::Result<()> {
+        self.meta_set("pull_cursor", None)?;
+        self.conn.lock().unwrap().execute("UPDATE sessions SET dirty = 1 WHERE ended_at IS NOT NULL", [])?;
+        Ok(())
+    }
+
+    pub fn pending_count(&self) -> i64 {
+        self.conn
+            .lock()
+            .unwrap()
+            .query_row("SELECT COUNT(*) FROM sessions WHERE dirty = 1 AND ended_at IS NOT NULL", [], |r| r.get(0))
+            .unwrap_or(0)
     }
 
     pub fn report(&self, year: i32, today: NaiveDate) -> rusqlite::Result<Report> {
@@ -325,7 +488,7 @@ impl Db {
         // 10 characters are the local date.
         let mut stmt = c.prepare(
             "SELECT substr(started_at, 1, 10) AS d, SUM(focused_secs), SUM(timed_secs), COUNT(*)
-             FROM sessions WHERE ended_at IS NOT NULL GROUP BY d ORDER BY d",
+             FROM sessions WHERE ended_at IS NOT NULL AND deleted = 0 GROUP BY d ORDER BY d",
         )?;
         let all: Vec<DayRow> = stmt
             .query_map([], |r| {
@@ -409,6 +572,7 @@ pub fn log_manual(app: tauri::AppHandle, db: tauri::State<'_, std::sync::Arc<Db>
     use tauri::Emitter;
     let id = db.insert_manual(&entry, Local::now())?;
     let _ = app.emit("reports://changed", ());
+    crate::cloud::nudge(&app);
     Ok(id)
 }
 
@@ -417,6 +581,7 @@ pub fn delete_manual(app: tauri::AppHandle, db: tauri::State<'_, std::sync::Arc<
     use tauri::Emitter;
     db.delete_manual(id)?;
     let _ = app.emit("reports://changed", ());
+    crate::cloud::nudge(&app);
     Ok(())
 }
 
@@ -586,5 +751,74 @@ mod tests {
         log(&db, at(2026, 10, 29, 9), 600, Some(5));
         let r = db.recent_tasks(10).unwrap();
         assert_eq!(r.iter().map(|t| t.title.as_str()).collect::<Vec<_>>(), vec!["Task", "Pairing on the planning doc"]);
+    }
+
+    #[test]
+    fn old_databases_get_ids_and_upload_everything() {
+        let conn = Connection::open_in_memory().unwrap();
+        conn.execute_batch(SCHEMA).unwrap();
+        conn.execute_batch(
+            "INSERT INTO sessions(task_source, task_title, started_at, ended_at, planned_secs, timed_secs, focused_secs)
+             VALUES ('todoist', 'A', '2026-10-01T09:00:00+00:00', '2026-10-01T09:25:00+00:00', 1500, 1500, 1500),
+                    ('manual', 'B', '2026-10-02T09:00:00+00:00', '2026-10-02T09:25:00+00:00', 1500, 1500, 0);",
+        )
+        .unwrap();
+        let db = Db::init(conn).unwrap();
+        let rows = db.dirty_rows(10).unwrap();
+        assert_eq!(rows.len(), 2);
+        assert_ne!(rows[0].id, rows[1].id);
+        assert_eq!(rows[0].id.len(), 36);
+        db.mark_clean(&[rows[0].id.clone(), rows[1].id.clone()]).unwrap();
+        assert_eq!(db.pending_count(), 0);
+    }
+
+    #[test]
+    fn delete_is_a_tombstone_that_syncs() {
+        let db = Db::in_memory().unwrap();
+        let now = at(2026, 10, 30, 12);
+        let id = db.insert_manual(&entry("2026-10-29", "14:00", 30, Some(5)), now).unwrap();
+        let ids: Vec<String> = db.dirty_rows(10).unwrap().into_iter().map(|r| r.id).collect();
+        db.mark_clean(&ids).unwrap();
+        db.delete_manual(id).unwrap();
+        assert!(db.day_sessions("2026-10-29").unwrap().is_empty());
+        let dirty = db.dirty_rows(10).unwrap();
+        assert_eq!(dirty.len(), 1);
+        assert!(dirty[0].deleted);
+    }
+
+    #[test]
+    fn remote_rows_merge_without_clobbering_local_changes() {
+        let a = Db::in_memory().unwrap();
+        let b = Db::in_memory().unwrap();
+        log(&a, at(2026, 10, 29, 9), 600, Some(5));
+        let rows = a.dirty_rows(10).unwrap();
+        assert_eq!(b.apply_remote(&rows).unwrap(), 1);
+        // The same rows again change nothing.
+        assert_eq!(b.apply_remote(&rows).unwrap(), 0);
+        let r = b.report(2026, NaiveDate::from_ymd_opt(2026, 10, 30).unwrap()).unwrap();
+        assert_eq!(r.totals.focused_secs, 600);
+        assert_eq!(b.pending_count(), 0, "pulled rows aren't uploaded back");
+
+        // A tombstone from the other computer removes it here...
+        let mut gone = rows[0].clone();
+        gone.deleted = true;
+        gone.task_source = "manual".into();
+        assert_eq!(b.apply_remote(&[gone.clone()]).unwrap(), 1);
+        assert!(b.day_sessions("2026-10-29").unwrap().is_empty());
+
+        // ...but not over an edit this computer hasn't uploaded yet.
+        let c = Db::in_memory().unwrap();
+        c.apply_remote(&rows).unwrap();
+        c.reset_sync().unwrap();
+        assert_eq!(c.apply_remote(&[gone]).unwrap(), 0);
+        assert_eq!(c.day_sessions("2026-10-29").unwrap().len(), 1);
+    }
+
+    #[test]
+    fn uuids_are_v4() {
+        let u = new_uuid();
+        assert_eq!(u.len(), 36);
+        assert_eq!(&u[14..15], "4");
+        assert!(matches!(&u[19..20], "8" | "9" | "a" | "b"));
     }
 }

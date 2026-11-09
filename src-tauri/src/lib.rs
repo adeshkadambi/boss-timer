@@ -1,4 +1,5 @@
 mod audio;
+mod cloud;
 mod db;
 mod engine;
 #[cfg(debug_assertions)]
@@ -83,11 +84,13 @@ pub fn run() {
             app.manage(audio::Audio::start(volume));
             app.manage(todoist::Todoist::new());
             app.manage(google::Google::new());
+            app.manage(cloud::Cloud::new());
             app.manage(timer::Timer::new(db));
 
             if let Err(e) = tray::build(&handle) {
                 log::warn!("no tray icon (the app works without one): {e}");
             }
+            cloud::spawn(handle.clone());
             timer::spawn_ticker(handle.clone());
             app.state::<timer::Timer>().recover(&handle);
             #[cfg(debug_assertions)]
@@ -134,6 +137,12 @@ pub fn run() {
             sync::google_connect,
             sync::google_disconnect,
             sync::google_calendars,
+            cloud::cloud_status,
+            cloud::cloud_save_config,
+            cloud::cloud_clear_config,
+            cloud::cloud_connect,
+            cloud::cloud_disconnect,
+            cloud::cloud_sync_now,
             db::get_report,
             db::log_manual,
             db::delete_manual,

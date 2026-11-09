@@ -157,7 +157,7 @@ impl Client {
     }
 }
 
-fn random_b64(bytes: usize) -> String {
+pub(crate) fn random_b64(bytes: usize) -> String {
     let mut b = vec![0u8; bytes];
     rand::rng().fill_bytes(&mut b);
     URL_SAFE_NO_PAD.encode(b)
@@ -206,7 +206,7 @@ impl Google {
             .append_pair("prompt", "consent");
         open(url.as_str()).map_err(GError::Other)?;
 
-        let code = tokio::time::timeout(LOGIN_TIMEOUT, wait_for_code(&listener, &state))
+        let code = tokio::time::timeout(LOGIN_TIMEOUT, wait_for_code(&listener, Some(&state), "Google Calendar"))
             .await
             .map_err(|_| GError::Other("Sign-in timed out. Try again.".into()))??;
 
@@ -395,7 +395,9 @@ fn convert(
 }
 
 /// Accepts connections on the loopback listener until one carries `code` (or `error`).
-async fn wait_for_code(listener: &TcpListener, state: &str) -> Result<String, GError> {
+/// Waits for the browser to land on the loopback listener with `?code=`. With `state` set, the
+/// request must echo it. `service` names what was connected, for the page the browser shows.
+pub(crate) async fn wait_for_code(listener: &TcpListener, state: Option<&str>, service: &str) -> Result<String, GError> {
     loop {
         let (mut sock, _) = listener.accept().await.map_err(|e| GError::Other(e.to_string()))?;
         let mut buf = vec![0u8; 8192];
@@ -406,8 +408,8 @@ async fn wait_for_code(listener: &TcpListener, state: &str) -> Result<String, GE
         let get = |k: &str| url.as_ref().and_then(|u| u.query_pairs().find(|(q, _)| q == k).map(|(_, v)| v.into_owned()));
 
         let (ok, result) = match (get("code"), get("error"), get("state")) {
-            (Some(code), _, Some(s)) if s == state => (true, Ok(code)),
-            (_, Some(err), _) => (false, Err(GError::Other(format!("Google sign-in failed: {err}")))),
+            (Some(code), _, got) if state.is_none() || got.as_deref() == state => (true, Ok(code)),
+            (_, Some(err), _) => (false, Err(GError::Other(format!("{service} sign-in failed: {err}")))),
             (Some(_), _, _) => (false, Err(GError::Other("Sign-in state didn't match. Try again.".into()))),
             _ => {
                 // favicon or a stray request: ignore it and keep waiting.
@@ -416,9 +418,9 @@ async fn wait_for_code(listener: &TcpListener, state: &str) -> Result<String, GE
             }
         };
         let msg = if ok {
-            "Boss Timer is connected to Google Calendar. You can close this tab."
+            format!("Boss Timer is connected to {service}. You can close this tab.")
         } else {
-            "Boss Timer couldn't connect to Google Calendar. Go back to the app and try again."
+            format!("Boss Timer couldn't connect to {service}. Go back to the app and try again.")
         };
         let body = format!(
             "<!doctype html><meta charset=utf-8><title>Boss Timer</title>\

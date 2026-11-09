@@ -2,6 +2,7 @@
 
 export const ICON = {
   tasks: 'M0 1h2v2H0z M3 1h5v2H3z M0 5h2v2H0z M3 5h5v2H3z',
+  cloud: 'M2 1h4v1H2z M1 2h1v1H1z M6 2h1v1H6z M0 3h1v3H0z M7 3h1v3H7z M1 3h6v3H1z M1 6h6v1H1z',
   calendar: 'M2 0h1v1H2z M5 0h1v1H5z M0 1h8v2H0z M0 3h1v5H0z M7 3h1v5H7z M1 7h6v1H1z M2 4h1v1H2z',
   gear: 'M3 0h2v1H3z M3 7h2v1H3z M0 3h1v2H0z M7 3h1v2H7z M1 1h1v1H1z M6 1h1v1H6z M1 6h1v1H1z M6 6h1v1H6z M2 1h4v1H2z M1 2h6v1H1z M1 3h2v2H1z M5 3h2v2H5z M1 5h6v1H1z M2 6h4v1H2z',
   check: 'M1 3h1v2H1z M2 4h1v2H2z M3 5h1v2H3z M4 4h1v2H4z M5 3h1v2H5z M6 2h1v2H6z M7 1h1v2H7z',

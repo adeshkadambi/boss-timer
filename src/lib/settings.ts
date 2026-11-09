@@ -28,6 +28,9 @@ export interface Settings {
   google_client_id: string;
   google_calendars: string[] | null;
   google_account: string;
+  supabase_url: string;
+  supabase_key: string;
+  cloud_account: string;
   /** Today view: the tasks panel's share of the width, 0.25–0.8. */
   tasks_split: number;
 }
@@ -47,6 +50,9 @@ export const DEFAULT_SETTINGS: Settings = {
   google_client_id: '',
   google_calendars: null,
   google_account: '',
+  supabase_url: '',
+  supabase_key: '',
+  cloud_account: '',
   tasks_split: 0.64,
 };
 

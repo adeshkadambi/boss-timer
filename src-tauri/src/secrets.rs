@@ -1,4 +1,5 @@
-//! Secrets: the Todoist token, the Google refresh token and the Google client secret.
+//! Secrets: the Todoist token, the Google refresh token, the Google client secret and the
+//! cloud-sync refresh token.
 //!
 //! Release builds keep them in the OS keychain (macOS Keychain, Linux Secret Service).
 //! Dev builds keep them in `dev-secrets.json` in the app config dir, readable only by the user:
@@ -19,6 +20,7 @@ const SERVICE: &str = "io.github.adeshkadambi.bosstimer";
 
 pub const TODOIST_TOKEN: &str = "todoist-token";
 pub const GOOGLE_REFRESH: &str = "google-refresh-token";
+pub const SUPABASE_REFRESH: &str = "supabase-refresh-token";
 pub const GOOGLE_SECRET: &str = "google-client-secret";
 
 /// name → value (None = known to be absent).

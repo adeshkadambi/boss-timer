@@ -1,7 +1,7 @@
 // Settings view (design/screens/Settings.dc.html, Reports.dc.html).
 
 import { getVersion } from '@tauri-apps/api/app';
-import { accounts, audio, errText, syncToday, updates, type AccountsStatus, type CalendarChoice } from '../lib/api';
+import { accounts, audio, cloud, errText, syncToday, updates, type AccountsStatus, type CalendarChoice, type CloudStatus } from '../lib/api';
 import { esc } from '../lib/dom';
 import { icon, type IconName } from '../lib/icons';
 import { mascotSvg } from '../lib/mascot';
@@ -39,6 +39,8 @@ export function mountSettings(root: HTMLElement, nav: SettingsNav, initial: Sett
   let busy = '';
   const msg: Record<string, { text: string; err: boolean }> = {};
   let editClient = false;
+  let cl: CloudStatus | null = null;
+  let editCloud = false;
 
   root.innerHTML = `
 <div class="settings" data-tauri-drag-region>
@@ -118,6 +120,7 @@ export function mountSettings(root: HTMLElement, nav: SettingsNav, initial: Sett
       if (tab === 'accounts') renderPanel();
       return;
     }
+    cl = await cloud.status().catch(() => null);
     acc = await accounts.status();
     if (acc.google_connected && !acc.google_needs_reconnect && cals == null) {
       accounts.googleCalendars().then((c) => { cals = c; calsErr = ''; }, (e) => { calsErr = errText(e); })
@@ -188,12 +191,57 @@ ${busy === 'g-connect' ? '<p class="hint">Finish signing in in your browser, the
 </div>`;
   }
 
+  const ago = (ms: number) => {
+    const m = Math.round((Date.now() - ms) / 60000);
+    return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : `${Math.round(m / 60)} h ago`;
+  };
+
+  function cloudSection(s: Settings): string {
+    const c = cl;
+    if (!c) return '';
+    let state = statusDot('Not set up', 'off');
+    if (c.configured && !c.connected) state = statusDot('Not signed in', 'off');
+    if (c.configured && c.connected) state = c.needs_reconnect ? statusDot('Sign-in expired', 'err') : statusDot('On', 'ok');
+    let body: string;
+    if (!c.configured || editCloud) {
+      const intro = c.builtin
+        ? 'This app has a Supabase project built in. Only fill this in to use a different one.'
+        : 'Keeps your sessions and Reports in sync across computers. Paste the Project URL and publishable key of your Supabase project (Project Settings → API Keys; see the README). Never paste a secret key.';
+      body = `<p class="hint">${intro}</p>
+<div class="form-col">
+  <label class="hint" for="sburl">Project URL</label>
+  <input id="sburl" class="txt pxsm" type="text" autocomplete="off" spellcheck="false" placeholder="https://….supabase.co" value="${esc(c.supabase_url)}">
+  <label class="hint" for="sbkey">Publishable key</label>
+  <input id="sbkey" class="txt pxsm" type="password" autocomplete="off" spellcheck="false" placeholder="${c.supabase_url ? 'Saved. Paste again to change it.' : ''}">
+</div>
+<div class="btn-row"><button class="btn primary" type="button" data-act="c-save"${busy ? ' disabled' : ''}>Save project</button>${editCloud ? '<button class="btn" type="button" data-act="c-cancel-edit">Cancel</button>' : ''}${c.builtin && c.supabase_url ? '<button class="btn" type="button" data-act="c-builtin">Use built-in project</button>' : ''}</div>`;
+    } else if (!c.connected || c.needs_reconnect) {
+      const wait = busy === 'c-connect';
+      body = `${c.needs_reconnect ? '<p class="hint">Supabase ended the sign-in. Sign in again; nothing is lost.</p>' : '<p class="hint">Sign in with Google. The first sync uploads everything logged on this computer and downloads the rest.</p>'}
+<div class="btn-row"><button class="btn primary" type="button" data-act="c-connect"${busy ? ' disabled' : ''}>${wait ? 'Waiting for browser…' : 'Sign in with Google'}</button>${c.builtin ? '' : '<button class="btn" type="button" data-act="c-edit">Change project</button>'}</div>
+${wait ? '<p class="hint">Finish signing in in your browser, then come back here.</p>' : ''}`;
+    } else {
+      const last = c.syncing ? 'Syncing…' : c.last_sync ? `Last synced ${ago(c.last_sync)}` : 'Not synced yet';
+      const pending = c.pending > 0 ? ` · ${c.pending} waiting to upload` : '';
+      body = `<span class="hint">Signed in as ${esc(c.account || s.cloud_account || 'your account')}</span>
+<p class="hint${c.error ? ' err' : ''}">${esc(c.error ? c.error : last)}${c.error ? '' : esc(pending)}</p>
+<div class="btn-row"><button class="btn" type="button" data-act="c-sync"${busy ? ' disabled' : ''}>${busy === 'c-sync' ? 'Syncing…' : 'Sync now'}</button><button class="btn danger" type="button" data-act="c-disconnect">Sign out</button></div>`;
+    }
+    return `<div class="stack">
+  <div class="acct-head">${icon('cloud', 18, 'style="color:var(--accent2)"')}<h3 class="h3">Cloud sync</h3>${state}</div>
+  ${body}
+  ${note('cloud')}
+</div>`;
+  }
+
   function accountsPanel(s: Settings): string {
     if (!acc) return '<h2 class="lbl">Accounts</h2><p class="meta">Loading…</p>';
     return `<h2 class="lbl">Accounts</h2>
 ${googleSection(s)}
 <div class="rule"></div>
 ${todoistSection(s)}
+<div class="rule"></div>
+${cloudSection(s)}
 <div class="rule"></div>
 <div class="inline-field"><label for="sync-every">Sync every</label>
 <select id="sync-every" class="sel pxsm">${[5, 15, 30].map((m) => `<option value="${m}"${m === s.sync_interval_min ? ' selected' : ''}>${m} minutes</option>`).join('')}</select></div>
@@ -319,6 +367,21 @@ ${radio('both', 'Ring and shake the timer')}${radio('shake', 'Shake only')}${rad
         break;
       }
       case 't-disconnect': void run(act, 'todoist', () => accounts.todoistDisconnect()); break;
+      case 'c-edit': editCloud = true; renderPanel(); break;
+      case 'c-cancel-edit': editCloud = false; renderPanel(); break;
+      case 'c-builtin': void run(act, 'cloud', async () => { await cloud.clearConfig(); editCloud = false; return 'Using the built-in project. Sign in to sync.'; }); break;
+      case 'c-save': {
+        const url = val('sburl');
+        const key = val('sbkey');
+        void run(act, 'cloud', async () => { await cloud.saveConfig(url, key); editCloud = false; return 'Project saved. Now sign in.'; });
+        break;
+      }
+      case 'c-connect': void run(act, 'cloud', async () => { const who = await cloud.connect(); return `Signed in as ${who}. Synced.`; }); break;
+      case 'c-disconnect': void run(act, 'cloud', () => cloud.disconnect()); break;
+      case 'c-sync': void run(act, 'cloud', async () => {
+        const r = await cloud.syncNow();
+        return `Synced: ${r.pushed} uploaded, ${r.pulled} downloaded.`;
+      }); break;
       case 'g-edit': editClient = true; renderPanel(); break;
       case 'g-cancel-edit': editClient = false; renderPanel(); break;
       case 'g-builtin': void run(act, 'google', async () => { await accounts.googleClearClient(); editClient = false; cals = null; return 'Using the built-in client. Connect to sign in.'; }); break;

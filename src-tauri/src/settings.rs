@@ -66,6 +66,13 @@ pub struct Settings {
     /// Signed-in Google account, for display.
     pub google_account: String,
 
+    // Cloud sync (Supabase). The URL and publishable key are public by design; they only select the project.
+    /// Overrides the project built into the app. Empty = use the built-in one.
+    pub supabase_url: String,
+    pub supabase_key: String,
+    /// Signed-in account for cloud sync, for display.
+    pub cloud_account: String,
+
     // Layout
     /// Today view: the tasks panel's share of the width, 0.25–0.8.
     pub tasks_split: f32,
@@ -88,6 +95,9 @@ impl Default for Settings {
             google_client_id: String::new(),
             google_calendars: None,
             google_account: String::new(),
+            supabase_url: String::new(),
+            supabase_key: String::new(),
+            cloud_account: String::new(),
             tasks_split: DEFAULT_SPLIT,
         }
     }
@@ -111,6 +121,8 @@ impl Settings {
             self.sync_interval_min = 15;
         }
         self.google_client_id = self.google_client_id.trim().to_string();
+        self.supabase_url = self.supabase_url.trim().trim_end_matches('/').to_string();
+        self.supabase_key = self.supabase_key.trim().to_string();
         self
     }
 

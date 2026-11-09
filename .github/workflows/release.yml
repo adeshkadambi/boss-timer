@@ -9,7 +9,9 @@ name: Release
 #
 # Releases are public and published right away (not drafts): installed apps find updates through
 # the releases/latest URL. So these builds contain no Google client; each machine pastes its own
-# in Settings > Accounts once. Don't pass BOSS_TIMER_GOOGLE_CLIENT_* here: anything compiled in
+# in Settings > Accounts once. Cloud sync is different: the Supabase URL and publishable key are public by
+# design (row-level security guards the data), so they're passed in from repo variables below.
+# Don't pass BOSS_TIMER_GOOGLE_CLIENT_* here: anything compiled in
 # can be extracted from a public download.
 on:
   push:
@@ -73,6 +75,9 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           # The key has no password.
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
+          # Repo variables (Settings > Secrets and variables > Actions > Variables), not secrets.
+          BOSS_TIMER_SUPABASE_URL: ${{ vars.BOSS_TIMER_SUPABASE_URL }}
+          BOSS_TIMER_SUPABASE_KEY: ${{ vars.BOSS_TIMER_SUPABASE_KEY }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Boss Timer ${{ github.ref_name }}
